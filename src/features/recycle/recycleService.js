@@ -11,7 +11,7 @@ const getAllRecycleLocation = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     };
-    const response = await axios.get(`API_URL + "location" ,config);
+    const response = await axios.get(API_URL + "location" ,config);
     return response.data;
   }
 
@@ -22,7 +22,7 @@ const getAllRecycleLocation = async (token) => {
             Authorization: `Bearer ${token}`,
           },
         };
-        await axios.delete(`API_URL + `location/${id}`, config);
+        await axios.delete(API_URL + `location/${id}`, config);
         return id; // return the deleted user id to update the Redux store
      
     }
