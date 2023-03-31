@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "/api/recycle/";
+const API_URL = "https://recytrack-backend.onrender.com/api/recycle/";
 
 // Get all recycle locations
 const getAllRecycleLocation = async (token) => {
