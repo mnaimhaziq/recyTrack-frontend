@@ -11,7 +11,7 @@ const getAllRecycleLocation = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     };
-    const response = await axios.get(`/api/recycle/location` ,config);
+    const response = await axios.get(`API_URL + "location" ,config);
     return response.data;
   }
 
@@ -22,7 +22,7 @@ const getAllRecycleLocation = async (token) => {
             Authorization: `Bearer ${token}`,
           },
         };
-        await axios.delete(`/api/recycle/location/${id}`, config);
+        await axios.delete(`API_URL + `location/${id}`, config);
         return id; // return the deleted user id to update the Redux store
      
     }
@@ -38,7 +38,7 @@ const getAllWasteTypes = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     };
-    const response = await axios.get(`/api/recycle/wasteType` ,config);
+    const response = await axios.get(API_URL + "wasteType" ,config);
     return response.data;
   }
 
