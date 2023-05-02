@@ -18,18 +18,25 @@ import {
   IconButton,
   useTheme,
   Pagination,
+  PaginationItem,
+  useMediaQuery
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import Header from "../components/Header";
 import {
-  getAllRecycleLocation,
+  getAllRecycleLocationByPageAndKeyword,
   deleteRecycleCollection,
   getRecycleLocationById,
   updateRecycleLocationById,
-  createRecycleCollection,
 } from "../features/recycle/recycleSlice";
-import { Formik } from "formik";
+import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import {
+  createRecycleCollection,
+  reset,
+} from "../features/recycle/recycleSlice";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RecyclingLocation = () => {
   const [open, setOpen] = useState(false);
@@ -48,10 +55,11 @@ const RecyclingLocation = () => {
   );
 
   const dispatch = useDispatch();
+  const isNonMobile = useMediaQuery("(min-width: 600px)");
   const theme = useTheme();
 
   useEffect(() => {
-    dispatch(getAllRecycleLocation({ token: user.token, page, search }));
+    dispatch(getAllRecycleLocationByPageAndKeyword({ token: user.token, page, search }));
     setTotalPages(recycleLocations.pages);
   }, [dispatch, user.token, page, recycleLocations.pages, search]);
 
@@ -74,14 +82,15 @@ const RecyclingLocation = () => {
   };
 
   const handleEdit = async (id) => {
-    await dispatch(getRecycleLocationById({ id, token: user.token, search }));
+    await dispatch(getRecycleLocationById({ id, token: user.token}));
     setOpenEditDialog(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async(id) => {
     if (window.confirm("Are you sure you want to delete this location?")) {
-      dispatch(deleteRecycleCollection({ id, token: user.token }));
-      dispatch(getAllRecycleLocation({ token: user.token, page, search }));
+      await dispatch(deleteRecycleCollection({ id, token: user.token }));
+      await dispatch(getAllRecycleLocationByPageAndKeyword({ token: user.token, page, search }));
+      toast.error("Recycling Location Has Been Deleted ");
     }
   };
 
@@ -137,12 +146,13 @@ const RecyclingLocation = () => {
     };
 
     await dispatch(createRecycleCollection({ newFormData, token: user.token }));
-    dispatch(getAllRecycleLocation({ token: user.token, page, search }));
+    dispatch(getAllRecycleLocationByPageAndKeyword({ token: user.token, page, search }));
+    toast.success("New Recycling Location Created ");
     resetForm();
     setOpen(false);
   };
 
-  const onSubmitEdit = async (values, { setSubmitting, resetForm }) => {
+  const onSubmitEdit = async (values, {  resetForm }) => {
     const {
       id,
       locationName,
@@ -172,36 +182,29 @@ const RecyclingLocation = () => {
       await dispatch(
         updateRecycleLocationById({ id, newFormData, token: user.token })
       );
-      dispatch(getAllRecycleLocation({ token: user.token, page, search }));
+      dispatch(getAllRecycleLocationByPageAndKeyword({ token: user.token, page, search }));
+      toast.success( "Recycling Location Has Been Edited ");
       resetForm();
       setOpenEditDialog(false);
     } catch (error) {
       console.error(error);
-    } finally {
-      setSubmitting(false);
-    }
+    } 
   };
 
   return (
     <Box m="1.5rem 2.5rem " p="0 0 4rem 0">
-      <Header title="RECYCLING LOCATION" />
+       <ToastContainer theme="colored" />
+      <Box
+       display={isNonMobile ? "flex" : "block"}
+        sx={{
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: "3rem",
+        }}
+      >
+        <Header title="RECYCLING LOCATION" />
 
-      <div>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <Button
-            sx={{ m: "1rem 0" }}
-            variant="contained"
-            color="primary"
-            onClick={handleClickOpen}
-          >
-            Create New Recycling Location
-          </Button>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
             id="search"
             label="Search By Location Name"
@@ -209,9 +212,25 @@ const RecyclingLocation = () => {
             size="small"
             value={search}
             onChange={handleSearchChange}
-            sx={{ m: "0 0 1rem 0" }}
+           
           />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleClickOpen}
+            sx={{ ml: "1rem",
+            padding: "0.5rem 1rem",
+              color: "#000000",
+              backgroundColor: theme.palette.primary.light,
+              "&:hover": {
+                color: theme.palette.neutral[1000],
+              }, }}
+          >
+            Create New Recycling Location
+          </Button>
         </Box>
+      </Box>
+      <div>
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Add New Recycling Collection Location</DialogTitle>
 
@@ -232,11 +251,7 @@ const RecyclingLocation = () => {
                     value={values.locationName}
                     onChange={handleChange}
                     error={errors.locationName && touched.locationName}
-                    helperText={
-                      <span style={{ color: "red" }}>
-                        {errors.locationName}
-                      </span>
-                    }
+                    helperText={touched.locationName && errors.locationName ? <span style={{ color: "red" }}>{errors.locationName}</span> : null}
                   />
 
                   <TextField
@@ -248,9 +263,7 @@ const RecyclingLocation = () => {
                     value={values.street}
                     onChange={handleChange}
                     error={errors.street && touched.street}
-                    helperText={
-                      <span style={{ color: "red" }}>{errors.street}</span>
-                    }
+                    helperText={touched.street && errors.street ? <span style={{ color: "red" }}>{errors.street}</span> : null}
                   />
                   <TextField
                     label="City"
@@ -261,9 +274,7 @@ const RecyclingLocation = () => {
                     value={values.city}
                     onChange={handleChange}
                     error={errors.city && touched.city}
-                    helperText={
-                      <span style={{ color: "red" }}>{errors.city}</span>
-                    }
+                    helperText={touched.city && errors.city ? <span style={{ color: "red" }}>{errors.city}</span> : null}
                   />
                   <TextField
                     label="Postal Code"
@@ -274,9 +285,7 @@ const RecyclingLocation = () => {
                     value={values.postalCode}
                     onChange={handleChange}
                     error={errors.postalCode && touched.postalCode}
-                    helperText={
-                      <span style={{ color: "red" }}>{errors.postalCode}</span>
-                    }
+                    helperText={touched.postalCode && errors.postalCode ? <span style={{ color: "red" }}>{errors.postalCode}</span> : null}
                   />
                   <TextField
                     label="Country"
@@ -287,9 +296,7 @@ const RecyclingLocation = () => {
                     value={values.country}
                     onChange={handleChange}
                     error={errors.country && touched.country}
-                    helperText={
-                      <span style={{ color: "red" }}>{errors.country}</span>
-                    }
+                    helperText={touched.country && errors.country ? <span style={{ color: "red" }}>{errors.country}</span> : null}
                   />
                   <TextField
                     label="Contact Number"
@@ -300,11 +307,8 @@ const RecyclingLocation = () => {
                     value={values.contactNumber}
                     onChange={handleChange}
                     error={errors.contactNumber && touched.contactNumber}
-                    helperText={
-                      <span style={{ color: "red" }}>
-                        {errors.contactNumber}
-                      </span>
-                    }
+                    helperText={touched.contactNumber && errors.contactNumber ? <span style={{ color: "red" }}>{errors.contactNumber}</span> : null}
+                    
                   />
                   <TextField
                     label="Latitude"
@@ -315,9 +319,7 @@ const RecyclingLocation = () => {
                     value={values.latitude}
                     onChange={handleChange}
                     error={errors.latitude && touched.latitude}
-                    helperText={
-                      <span style={{ color: "red" }}>{errors.latitude}</span>
-                    }
+                    helperText={touched.latitude && errors.latitude ? <span style={{ color: "red" }}>{errors.latitude}</span> : null}
                   />
 
                   <TextField
@@ -329,16 +331,19 @@ const RecyclingLocation = () => {
                     value={values.longitude}
                     onChange={handleChange}
                     error={errors.longitude && touched.longitude}
-                    helperText={
-                      <span style={{ color: "red" }}>{errors.longitude}</span>
-                    }
+                    helperText={touched.longitude && errors.longitude ? <span style={{ color: "red" }}>{errors.longitude}</span> : null}
                   />
                   <DialogActions>
                     <Button
                       onClick={handleClose}
                       sx={{
-                        color: theme.palette.neutral[10],
-                        backgroundColor: theme.palette.primary.main,
+                        padding: "0.5rem 1rem",
+                        color: theme.palette.neutral[1000],
+                        backgroundColor: theme.palette.primary.light,
+                        "&:hover": {
+                          backgroundColor: theme.palette.primary.main
+                              
+                        },
                       }}
                     >
                       Cancel
@@ -346,8 +351,13 @@ const RecyclingLocation = () => {
                     <Button
                       type="submit"
                       sx={{
-                        color: theme.palette.neutral[10],
-                        backgroundColor: theme.palette.primary.main,
+                        padding: "0.5rem 1rem",
+                        color: theme.palette.neutral[1000],
+                        backgroundColor: theme.palette.primary.light,
+                        "&:hover": {
+                          backgroundColor: theme.palette.primary.main
+                              
+                        },
                       }}
                     >
                       Create
@@ -365,15 +375,15 @@ const RecyclingLocation = () => {
             <TableHead style={{ backgroundColor: theme.palette.primary.main }}>
               <TableRow>
                 <TableCell style={{ color: "#ffffff" }}>
-                  Location Name
+                  LOCATION NAME
                 </TableCell>
-                <TableCell style={{ color: "#ffffff" }}>Address</TableCell>
+                <TableCell style={{ color: "#ffffff" }}>ADDRESS</TableCell>
                 <TableCell style={{ color: "#ffffff" }}>
-                  Contact Number
+                  CONTACT NUMBER
                 </TableCell>
                 {/* <TableCell>Waste Types</TableCell> */}
-                <TableCell style={{ color: "#ffffff" }}>Latitude</TableCell>
-                <TableCell style={{ color: "#ffffff" }}>Longitude</TableCell>
+                <TableCell style={{ color: "#ffffff" }}>LATITUDE</TableCell>
+                <TableCell style={{ color: "#ffffff" }}>LONGITUDE</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -384,8 +394,6 @@ const RecyclingLocation = () => {
                     <TableCell>{row.locationName}</TableCell>
                     <TableCell>{`${row.address.street}, ${row.address.city}, ${row.address.postalCode}, ${row.address.country}`}</TableCell>
                     <TableCell>{row.contactNumber}</TableCell>
-
-                    {/* <TableCell>{row.acceptedWasteTypes.join(", ")}</TableCell> */}
                     <TableCell>{row.latitude}</TableCell>
                     <TableCell>{row.longitude}</TableCell>
                     <TableCell align="right">
@@ -456,9 +464,7 @@ const RecyclingLocation = () => {
                   value={values.locationName}
                   onChange={handleChange}
                   error={errors.locationName && touched.locationName}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.locationName}</span>
-                  }
+                  helperText={touched.locationName && errors.locationName ? <span style={{ color: "red" }}>{errors.locationName}</span> : null}
                 />
 
                 <TextField
@@ -470,9 +476,7 @@ const RecyclingLocation = () => {
                   value={values.street}
                   onChange={handleChange}
                   error={errors.street && touched.street}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.street}</span>
-                  }
+                  helperText={touched.street && errors.street ? <span style={{ color: "red" }}>{errors.street}</span> : null}
                 />
                 <TextField
                   label="City"
@@ -483,9 +487,7 @@ const RecyclingLocation = () => {
                   value={values.city}
                   onChange={handleChange}
                   error={errors.city && touched.city}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.city}</span>
-                  }
+                  helperText={touched.city && errors.city ? <span style={{ color: "red" }}>{errors.city}</span> : null}
                 />
                 <TextField
                   label="Postal Code"
@@ -496,9 +498,7 @@ const RecyclingLocation = () => {
                   value={values.postalCode}
                   onChange={handleChange}
                   error={errors.postalCode && touched.postalCode}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.postalCode}</span>
-                  }
+                  helperText={touched.postalCode && errors.postalCode ? <span style={{ color: "red" }}>{errors.postalCode}</span> : null}
                 />
                 <TextField
                   label="Country"
@@ -509,9 +509,7 @@ const RecyclingLocation = () => {
                   value={values.country}
                   onChange={handleChange}
                   error={errors.country && touched.country}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.country}</span>
-                  }
+                  helperText={touched.country && errors.country ? <span style={{ color: "red" }}>{errors.country}</span> : null}
                 />
                 <TextField
                   label="Contact Number"
@@ -522,9 +520,7 @@ const RecyclingLocation = () => {
                   value={values.contactNumber}
                   onChange={handleChange}
                   error={errors.contactNumber && touched.contactNumber}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.contactNumber}</span>
-                  }
+                  helperText={touched.contactNumber && errors.contactNumber ? <span style={{ color: "red" }}>{errors.contactNumber}</span> : null}
                 />
                 <TextField
                   label="Latitude"
@@ -535,9 +531,7 @@ const RecyclingLocation = () => {
                   value={values.latitude}
                   onChange={handleChange}
                   error={errors.latitude && touched.latitude}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.latitude}</span>
-                  }
+                  helperText={touched.latitude && errors.latitude ? <span style={{ color: "red" }}>{errors.latitude}</span> : null}
                 />
 
                 <TextField
@@ -549,16 +543,19 @@ const RecyclingLocation = () => {
                   value={values.longitude}
                   onChange={handleChange}
                   error={errors.longitude && touched.longitude}
-                  helperText={
-                    <span style={{ color: "red" }}>{errors.longitude}</span>
-                  }
+                  helperText={touched.longitude && errors.longitude ? <span style={{ color: "red" }}>{errors.longitude}</span> : null}
                 />
                 <DialogActions>
                   <Button
                     onClick={handleClose}
                     sx={{
-                      color: theme.palette.neutral[10],
-                      backgroundColor: theme.palette.primary.main,
+                      padding: "0.5rem 1rem",
+                      color: theme.palette.neutral[1000],
+                      backgroundColor: theme.palette.yellow.main,
+                      "&:hover": {
+                        color: theme.palette.neutral[10]
+                            
+                      },
                     }}
                   >
                     Cancel
@@ -566,8 +563,13 @@ const RecyclingLocation = () => {
                   <Button
                     type="submit"
                     sx={{
-                      color: theme.palette.neutral[10],
-                      backgroundColor: theme.palette.primary.main,
+                      padding: "0.5rem 1rem",
+                      color: theme.palette.neutral[1000],
+                      backgroundColor: theme.palette.yellow.main,
+                      "&:hover": {
+                        color: theme.palette.neutral[10]
+                            
+                      },
                     }}
                   >
                     Save
