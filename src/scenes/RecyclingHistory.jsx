@@ -18,32 +18,26 @@ import {
   IconButton,
   useTheme,
   Pagination,
-  PaginationItem,
   Select,
   InputLabel,
   MenuItem,
   FormControl,
   useMediaQuery,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
+import { Edit, Delete, Add } from "@mui/icons-material";
 import Header from "../components/Header";
 import {
-  getAllRecycleLocation,
-  getRecycleHistoryByUserId,
   createRecyclingHistory,
   deleteRecycleHistory,
   getRecycleHistoryById,
   updateRecycleHistoryById,
-} from "../features/recycle/recycleSlice";
-import { Formik, Form, Field } from "formik";
+  getRecycleHistoryByUserIdAndPage,
+} from "../features/recycle/recycleFunction/recyclingHistoryFunction";
+import { getAllRecycleLocation } from "../features/recycle/recycleFunction/recycleLocationFunction";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import {
-  createRecycleCollection,
-  reset,
-} from "../features/recycle/recycleSlice";
-import { find } from "lodash";
 
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 
 const RecyclingHistory = () => {
   const [open, setOpen] = useState(false);
@@ -57,9 +51,11 @@ const RecyclingHistory = () => {
   );
 
   const recyclingHistories = useSelector(
-    (state) => state.recycle.recyclingHistories
+    (state) => state.recycle.recyclingHistoriesTop8
   );
-  const recyclingHistory = useSelector((state) => state.recycle.recycleHistoryById)
+  const recyclingHistory = useSelector(
+    (state) => state.recycle.recycleHistoryById
+  );
 
   const dispatch = useDispatch();
   const isNonMobile = useMediaQuery("(min-width: 600px)");
@@ -68,7 +64,11 @@ const RecyclingHistory = () => {
   useEffect(() => {
     dispatch(getAllRecycleLocation(user.token));
     dispatch(
-      getRecycleHistoryByUserId({ id: user._id, page, token: user.token })
+      getRecycleHistoryByUserIdAndPage({
+        id: user._id,
+        page,
+        token: user.token,
+      })
     );
     setTotalPages(recyclingHistories.pages);
   }, [dispatch, user.token, page, user._id, recyclingHistories.pages]);
@@ -91,10 +91,21 @@ const RecyclingHistory = () => {
     setOpenEditDialog(true);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this recycling history?")) {
-      dispatch(deleteRecycleHistory({ id, token: user.token }));
-      dispatch(getRecycleHistoryByUserId({ id: user._id, page, token: user.token }));
+  const handleDelete = async (id) => {
+    if (
+      window.confirm("Are you sure you want to delete this recycling history?")
+    ) {
+      await dispatch(deleteRecycleHistory({ id, token: user.token })).then(
+        () => {
+          dispatch(
+            getRecycleHistoryByUserIdAndPage({
+              id: user._id,
+              page,
+              token: user.token,
+            })
+          );
+        }
+      );
       toast.error("Recycling Location Has Been Deleted ");
     }
   };
@@ -114,49 +125,95 @@ const RecyclingHistory = () => {
       .required("This field is Required"),
   });
 
+  const calculateQuantity = (quantity, wasteType) => {
+    let conversionFactor;
+
+    if (wasteType === "Bottle") {
+      conversionFactor = 0.025;
+    } else if (wasteType === "Can") {
+      conversionFactor = 0.01;
+    } else {
+      conversionFactor = 1;
+    }
+
+    const quantityInKg = quantity * conversionFactor;
+    return parseFloat(quantityInKg.toFixed(2));
+  };
+
+  const reverseCalculateQuantity = (quantityInKg, wasteType) => {
+    let conversionFactor;
+
+    if (wasteType === "Bottle") {
+      conversionFactor = 0.025;
+    } else if (wasteType === "Can") {
+      conversionFactor = 0.01;
+    } else {
+      conversionFactor = 1;
+    }
+
+    const quantity = Math.round(quantityInKg / conversionFactor);
+    return quantity;
+  };
+
   const onSubmit = async (values, { resetForm }) => {
-    const { recyclingLocationId, recyclingMethod, quantity, wasteType } = values;
+    const { recyclingLocationId, recyclingMethod, quantity, wasteType } =
+      values;
 
     const newFormData = {
       recyclingLocationId,
       recyclingMethod,
-      quantity,
+      quantity: calculateQuantity(quantity, wasteType),
       wasteType,
     };
 
-    await dispatch(createRecyclingHistory({ newFormData, token: user.token }));
-    dispatch(
-      getRecycleHistoryByUserId({ id: user._id, page, token: user.token })
-    );
+    await dispatch(
+      createRecyclingHistory({ newFormData, token: user.token })
+    ).then(() => {
+      dispatch(
+        getRecycleHistoryByUserIdAndPage({
+          id: user._id,
+          page,
+          token: user.token,
+        })
+      );
+    });
+    toast.success("New Recycling History Created ");
     resetForm();
     setOpen(false);
   };
 
   const onSubmitEdit = async (values, { resetForm }) => {
-    const {  recyclingLocationId, recyclingMethod, quantity, wasteType } = values;
+    const { recyclingLocationId, recyclingMethod, quantity, wasteType } =
+      values;
 
     const newFormData = {
-     
       recyclingLocationId,
       recyclingMethod,
-      quantity,
+      quantity: calculateQuantity(quantity, wasteType),
       wasteType,
     };
 
-    const id = recyclingHistory._id
+    console.log(newFormData);
+    const id = recyclingHistory._id;
 
-    await dispatch(updateRecycleHistoryById({ id,newFormData, token: user.token }));
-    dispatch(
-      getRecycleHistoryByUserId({ id: user._id, page, token: user.token })
+    await dispatch(
+      updateRecycleHistoryById({ id, newFormData, token: user.token })
     );
-    toast.success( "Recycling History Has Been Edited ");
+    dispatch(
+      getRecycleHistoryByUserIdAndPage({
+        id: user._id,
+        page,
+        token: user.token,
+      })
+    );
+    toast.success("Recycling History Has Been Edited ");
     resetForm();
     setOpenEditDialog(false);
   };
 
   return (
     <Box m="1.5rem 2.5rem">
-       <ToastContainer theme="colored" />
+      <ToastContainer theme="colored" />
       <Box
         sx={{
           display: "flex",
@@ -182,7 +239,7 @@ const RecyclingHistory = () => {
               },
             }}
           >
-            Create
+            <Add /> Create New Recycling History
           </Button>
         </Box>
       </Box>
@@ -239,7 +296,10 @@ const RecyclingHistory = () => {
                     >
                       <MenuItem value="curbside">Curbside Recycling</MenuItem>
                       <MenuItem value="drop-off">Drop-off Recycling</MenuItem>
-                      <MenuItem value="composting">Composting </MenuItem>
+                      <MenuItem value="composting">Composting</MenuItem>
+                      <MenuItem value="E-waste Recycling">
+                        E-waste Recycling
+                      </MenuItem>
                     </Select>
                     <InputLabel htmlFor="recyclingMethod">
                       Recycling Method
@@ -257,13 +317,11 @@ const RecyclingHistory = () => {
                       <MenuItem value="Plastic">Plastic</MenuItem>
                       <MenuItem value="Paper">Paper</MenuItem>
                       <MenuItem value="Glass">Glass </MenuItem>
-                      <MenuItem value="Metal">
-                        Metal
-                      </MenuItem>
+                      <MenuItem value="Metal">Metal</MenuItem>
+                      <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
+                      <MenuItem value="Can">Can (Can)</MenuItem>
                     </Select>
-                    <InputLabel htmlFor="wasteType">
-                     Waste Type
-                    </InputLabel>
+                    <InputLabel htmlFor="wasteType">Waste Type</InputLabel>
                   </FormControl>
                   <TextField
                     label="quantity"
@@ -322,15 +380,15 @@ const RecyclingHistory = () => {
             <TableHead style={{ backgroundColor: theme.palette.primary.main }}>
               <TableRow>
                 <TableCell style={{ color: "#ffffff" }}>
-                 RECYCLING LOCATION
+                  RECYCLING LOCATION
                 </TableCell>
                 <TableCell style={{ color: "#ffffff" }}>
-                 RECYCLING METHOD
+                  RECYCLING METHOD
                 </TableCell>
+                <TableCell style={{ color: "#ffffff" }}>WASTE TYPE</TableCell>
                 <TableCell style={{ color: "#ffffff" }}>
-                WASTE TYPE
+                  QUANTITY (KG)
                 </TableCell>
-                <TableCell style={{ color: "#ffffff" }}>QUANTITY (KG)</TableCell>
                 {/* <TableCell>Waste Types</TableCell> */}
                 <TableCell style={{ color: "#ffffff" }}>CREATED AT</TableCell>
 
@@ -341,7 +399,14 @@ const RecyclingHistory = () => {
               {recyclingHistories.data &&
                 recyclingHistories.data.map((row, idx) => (
                   <TableRow key={row._id}>
-                    <TableCell> {row.recyclingLocation.locationName}</TableCell>
+                    {row.recyclingLocation ? (
+                      <TableCell>
+                        {row.recyclingLocation.locationName }
+                      </TableCell>
+                    ) : (
+                      <TableCell>Undefined</TableCell>
+                    )}
+
                     <TableCell>{row.recyclingMethod}</TableCell>
                     <TableCell>{row.wasteType}</TableCell>
                     <TableCell>{row.quantity}</TableCell>
@@ -360,7 +425,7 @@ const RecyclingHistory = () => {
                         aria-label="delete"
                         onClick={() => handleDelete(row._id)}
                       >
-                        <Delete />
+                        <Delete sx={{ color: "#e00a33" }} />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -370,7 +435,10 @@ const RecyclingHistory = () => {
         </TableContainer>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Pagination
-            sx={{ m: "1rem 0" }}
+            sx={{
+              m: "1rem 0",
+              "& .Mui-selected": { backgroundColor: "rgba(13,110,253,0.5)" },
+            }}
             count={totalPages}
             page={page}
             onChange={handlePageChange}
@@ -381,138 +449,145 @@ const RecyclingHistory = () => {
         </Box>
       </Paper>
       <Dialog open={openEditDialog} onClose={handleClose}>
-          <DialogTitle>Edit Recycling History for {recyclingHistory.createdAt}</DialogTitle>
+        <DialogTitle>
+          Edit Recycling History for{" "}
+          {new Date(recyclingHistory.createdAt).toLocaleString()}
+        </DialogTitle>
 
-          <DialogContent
-            sx={{
-              width: isNonMobile ? 500 : null,
-              maxWidth: isNonMobile ? null : 480,
+        <DialogContent
+          sx={{
+            width: isNonMobile ? 500 : null,
+            maxWidth: isNonMobile ? null : 480,
+          }}
+        >
+          <Formik
+            initialValues={{
+              id: recyclingHistory._id,
+              recyclingLocationId: recyclingHistory.recyclingLocation,
+              recyclingMethod: recyclingHistory.recyclingMethod,
+              quantity: reverseCalculateQuantity(
+                recyclingHistory.quantity,
+                recyclingHistory.wasteType
+              ),
+              wasteType: recyclingHistory.wasteType,
             }}
+            validationSchema={validationSchema}
+            onSubmit={onSubmitEdit}
           >
-            <Formik
-              initialValues={{
-                id: recyclingHistory._id,
-                recyclingLocationId: recyclingHistory.recyclingLocation,
-                recyclingMethod: recyclingHistory.recyclingMethod,
-                quantity: recyclingHistory.quantity,
-                wasteType: recyclingHistory.wasteType,
-              }}
-              validationSchema={validationSchema}
-              onSubmit={onSubmitEdit}
-            >
-              {({ values, handleChange, handleSubmit, errors, touched }) => (
-                <Form onSubmit={handleSubmit}>
-                  <FormControl fullWidth sx={{ margin: "1rem 0" }}>
-                    <Select
-                      labelId="locationName"
-                      label="Recycling Location"
-                      id="locationName"
-                      name="recyclingLocationId"
-                      value={values.recyclingLocationId}
-                      onChange={handleChange}
-                    >
-                      {recycleLocations.data
-                        .slice()
-                        .sort((a, b) =>
-                          a.locationName.localeCompare(b.locationName)
-                        ) // Sort the options alphabetically
-                        .map((data) => (
-                          <MenuItem key={data._id} value={data._id}>
-                            {data.locationName}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                    <InputLabel htmlFor="locationName">
-                      Recycling Location
-                    </InputLabel>
-                  </FormControl>
-
-                  <FormControl fullWidth sx={{ margin: "1rem 0" }}>
-                    <Select
-                      labelId="recyclingMethod"
-                      label="Recycling Method"
-                      id="recyclingMethod"
-                      name="recyclingMethod"
-                      value={values.recyclingMethod}
-                      onChange={handleChange}
-                    >
-                      <MenuItem value="curbside">Curbside Recycling</MenuItem>
-                      <MenuItem value="drop-off">Drop-off Recycling</MenuItem>
-                      <MenuItem value="composting">Composting </MenuItem>
-                    </Select>
-                    <InputLabel htmlFor="recyclingMethod">
-                      Recycling Method
-                    </InputLabel>
-                  </FormControl>
-                  <FormControl fullWidth sx={{ margin: "1rem 0" }}>
-                    <Select
-                      labelId="wasteType"
-                      label="Waste Type"
-                      id="wasteType"
-                      name="wasteType"
-                      value={values.wasteType}
-                      onChange={handleChange}
-                    >
-                      <MenuItem value="Plastic">Plastic</MenuItem>
-                      <MenuItem value="Paper">Paper</MenuItem>
-                      <MenuItem value="Glass">Glass </MenuItem>
-                      <MenuItem value="Metal">
-                        Metal
-                      </MenuItem>
-                    </Select>
-                    <InputLabel htmlFor="wasteType">
-                     Waste Type
-                    </InputLabel>
-                  </FormControl>
-                  <TextField
-                    label="quantity"
-                    id="quantity"
-                    fullWidth
-                    sx={{ margin: "1rem 0" }}
-                    name="quantity"
-                    value={values.quantity}
+            {({ values, handleChange, handleSubmit, errors, touched }) => (
+              <Form onSubmit={handleSubmit}>
+                <FormControl fullWidth sx={{ margin: "1rem 0" }}>
+                  <Select
+                    labelId="locationName"
+                    label="Recycling Location"
+                    id="locationName"
+                    name="recyclingLocationId"
+                    value={values.recyclingLocationId}
                     onChange={handleChange}
-                    error={errors.quantity && touched.quantity}
-                    helperText={
-                      touched.quantity && errors.quantity ? (
-                        <span style={{ color: "red" }}>{errors.quantity}</span>
-                      ) : null
-                    }
-                  />
+                  >
+                    {recycleLocations.data
+                      .slice()
+                      .sort((a, b) =>
+                        a.locationName.localeCompare(b.locationName)
+                      ) // Sort the options alphabetically
+                      .map((data) => (
+                        <MenuItem key={data._id} value={data._id}>
+                          {data.locationName}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  <InputLabel htmlFor="locationName">
+                    Recycling Location
+                  </InputLabel>
+                </FormControl>
 
-                  <DialogActions>
-                    <Button
-                      onClick={handleClose}
-                      sx={{
-                        padding: "0.5rem 1rem",
-                        color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.yellow.main,
-                        "&:hover": {
-                          color: theme.palette.neutral[10],
-                        },
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      sx={{
-                        padding: "0.5rem 1rem",
-                        color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.yellow.main,
-                        "&:hover": {
-                          color: theme.palette.neutral[10],
-                        },
-                      }}
-                    >
-                      Create
-                    </Button>
-                  </DialogActions>
-                </Form>
-              )}
-            </Formik>
-          </DialogContent>
-        </Dialog>
+                <FormControl fullWidth sx={{ margin: "1rem 0" }}>
+                  <Select
+                    labelId="recyclingMethod"
+                    label="Recycling Method"
+                    id="recyclingMethod"
+                    name="recyclingMethod"
+                    value={values.recyclingMethod}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="curbside">Curbside Recycling</MenuItem>
+                    <MenuItem value="drop-off">Drop-off Recycling</MenuItem>
+                    <MenuItem value="composting">Composting</MenuItem>
+                    <MenuItem value="E-waste Recycling">
+                      E-waste Recycling
+                    </MenuItem>
+                  </Select>
+                  <InputLabel htmlFor="recyclingMethod">
+                    Recycling Method
+                  </InputLabel>
+                </FormControl>
+                <FormControl fullWidth sx={{ margin: "1rem 0" }}>
+                  <Select
+                    labelId="wasteType"
+                    label="Waste Type"
+                    id="wasteType"
+                    name="wasteType"
+                    value={values.wasteType}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="Plastic">Plastic</MenuItem>
+                    <MenuItem value="Paper">Paper</MenuItem>
+                    <MenuItem value="Glass">Glass </MenuItem>
+                    <MenuItem value="Metal">Metal</MenuItem>
+                    <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
+                    <MenuItem value="Can">Can (Can)</MenuItem>
+                  </Select>
+                  <InputLabel htmlFor="wasteType">Waste Type</InputLabel>
+                </FormControl>
+                <TextField
+                  label="quantity"
+                  id="quantity"
+                  fullWidth
+                  sx={{ margin: "1rem 0" }}
+                  name="quantity"
+                  value={values.quantity}
+                  onChange={handleChange}
+                  error={errors.quantity && touched.quantity}
+                  helperText={
+                    touched.quantity && errors.quantity ? (
+                      <span style={{ color: "red" }}>{errors.quantity}</span>
+                    ) : null
+                  }
+                />
+
+                <DialogActions>
+                  <Button
+                    onClick={handleClose}
+                    sx={{
+                      padding: "0.5rem 1rem",
+                      color: theme.palette.neutral[1000],
+                      backgroundColor: theme.palette.yellow.main,
+                      "&:hover": {
+                        color: theme.palette.neutral[10],
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    sx={{
+                      padding: "0.5rem 1rem",
+                      color: theme.palette.neutral[1000],
+                      backgroundColor: theme.palette.yellow.main,
+                      "&:hover": {
+                        color: theme.palette.neutral[10],
+                      },
+                    }}
+                  >
+                    Create
+                  </Button>
+                </DialogActions>
+              </Form>
+            )}
+          </Formik>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

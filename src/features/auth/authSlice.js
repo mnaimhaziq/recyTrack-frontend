@@ -59,9 +59,9 @@ export const updateProfile = createAsyncThunk("auth/updateProfile", async (user,
 });
 
 //Get All Users
-export const getAllUsers = createAsyncThunk("auth/getAllUsers", async (token, thunkAPI) => {
+export const getAllUsers = createAsyncThunk("auth/getAllUsers", async ({token, page, search}, thunkAPI) => {
   try {
-    const users = await authService.getAllUsers(token);
+    const users = await authService.getAllUsers(token, page, search);
     return users;
   } catch (error) {
     const message =
@@ -80,7 +80,7 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    reset: (state) => {
+    resetUser: (state) => {
       state.isLoading = false;
       state.isError = false;
       state.isSuccess = false;
@@ -156,5 +156,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { reset} = authSlice.actions;
+export const { resetUser} = authSlice.actions;
 export default authSlice.reducer;

@@ -3,11 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Card, Button, Form } from "react-bootstrap";
 import "./AuthScreen.css";
-import { login, reset } from "../features/auth/authSlice";
+import { login } from "../features/auth/authSlice";
 import Spinner from "../components/Spinner";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { getRecycleHistoryByUserId } from "../features/recycle/recycleSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  getMostRecycledWasteType,
+  getRecycleHistoryByUserIdAndPage,
+} from "../features/recycle/recycleFunction/recyclingHistoryFunction";
+
+
 const LoginScreen = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -15,26 +20,38 @@ const LoginScreen = () => {
   });
 
   const { email, password } = formData;
-  const page = null
+  const page = null;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const auth = useSelector((state) => state.auth);
   const { user, isLoading, isSuccess, isError } = auth;
 
+  
+
   useEffect(() => {
-    if (isSuccess || user) {
-      navigate("/dashboard");
-      dispatch(
-        getRecycleHistoryByUserId({ id: user._id, page , token: user.token })
-      ); 
+    const dispatchForDashboard = async () => {
+      await dispatch(
+        getRecycleHistoryByUserIdAndPage({
+          id: user._id,
+          page,
+          token: user.token,
+        })
+      )
+      .then(() =>{dispatch(getMostRecycledWasteType({id: user._id, token: user.token}));})
+      .then(() =>{navigate("/dashboard");})
     }
-    if(isError){
+
+    if (isSuccess || user) {
+      dispatchForDashboard();
+    }
+  
+    if (isError) {
       toast.error("Invalid Credentials. ");
       return;
     }
-   
-  }, [user, isSuccess, isError,navigate]);
+  }, [user, isSuccess, isError, navigate, dispatch]);
+  
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -45,28 +62,25 @@ const LoginScreen = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    if(email === '' || password === ''){
+    if (email === "" || password === "") {
       toast.error("Please fill in all required fields.");
       return;
+    } else {
+      const userData = {
+        email,
+        password,
+      };
+      await dispatch(login(userData));
     }
+  };
 
-    else{
-
-    const userData = {
-      email,
-      password,
-    };
-    await dispatch(login(userData));
-   
-  };}
-
-  // if (isLoading) {
-  //   return <Spinner />;
-  // }
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="auth-body">
-      <ToastContainer  />
+      <ToastContainer />
       <Card className="auth ">
         <Card.Title as="h2" className="text-center mb-5">
           Login
@@ -80,7 +94,6 @@ const LoginScreen = () => {
               name="email"
               value={email}
               onChange={onChange}
-             
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="password">

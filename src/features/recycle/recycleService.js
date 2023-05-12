@@ -109,14 +109,37 @@ const createRecycleCollection = async (newFormData, token) => {
  
 }
 
-  const getRecycleHistoryByUserId = async (id, page, token) => {
+const getTotalRecyclingHistoryByUserId = async (id, token) => {
+  
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.get(API_URL + `getTotalRecyclingHistoryByUserId/${id}`, config);
+  return response.data; // return the deleted user id to update the Redux store
+
+}
+
+const getMostRecycledWasteType = async (id, token) => {
+  
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.get(API_URL + `getMostRecycledWasteType/${id}`, config);
+  return response.data; // return the deleted user id to update the Redux store
+
+}
+  const getRecycleHistoryByUserIdAndPage = async (id, page, token) => {
   
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    const response = await axios.get(API_URL + `getRecyclingHistory/${id}?page=${page}`, config);
+    const response = await axios.get(API_URL + `getRecyclingHistoryByPage/${id}?page=${page}`, config);
     return response.data; // return the deleted user id to update the Redux store
  
 }
@@ -140,11 +163,22 @@ const updateRecycleHistoryById = async (id, newFormData, token) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.put(API_URL + `recycling-history/${id}`, newFormData, config);
+  const response = await axios.put(API_URL + `update/${id}`, newFormData, config);
   return response.data; // return the deleted user id to update the Redux store
 
 }
 
+const getRecyclingPercentagesByUser = async (id, token) => {
+  
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await axios.get(API_URL + `percentages/${id}`, config);
+  return response.data; // return the deleted user id to update the Redux store
+
+}
 
 
   const recycleService = {
@@ -156,9 +190,12 @@ const updateRecycleHistoryById = async (id, newFormData, token) => {
    deleteRecycleHistory,
    getRecycleLocationById,
    getRecycleHistoryById,
-   getRecycleHistoryByUserId,
+   getTotalRecyclingHistoryByUserId,
+   getRecycleHistoryByUserIdAndPage,
    updateRecycleLocationById,
-   updateRecycleHistoryById
+   updateRecycleHistoryById,
+   getMostRecycledWasteType,
+   getRecyclingPercentagesByUser,
   };
   
   export default recycleService;
