@@ -146,20 +146,32 @@ const RecyclingLocation = () => {
 
   useEffect(() => {
     // Get the user's current location using browser's geolocation API
-   
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setCurrentLocation([latitude, longitude]); // Set the current location state
-        },
-        (error) => {
-          console.error(error);
-        }, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
+    if ("permissions" in navigator) {
+      navigator.permissions.query({
+        name: "geolocation"
+      }).then((result) => {
+        if (result.state === "granted") {
+          console.log("granted");
+        } else if (result.state === "denied") {
+          console.log("denial");
+        } else {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              setCurrentLocation([latitude, longitude]); // Set the current location state
+            },
+            (error) => {
+              console.error(error);
+            }, {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0
+            }
+          );
         }
-      );
+      });
+    }
+     
   }, []);
 
   const showLocationonMap = (row) => {
