@@ -76,6 +76,8 @@ const RecyclingLocation = () => {
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
+
+ 
   const userIcon = new Icon({
     iconUrl: userPointerIcon,
     iconSize: [38, 38],
@@ -140,21 +142,24 @@ const RecyclingLocation = () => {
     return null;
   };
 
+
+
   useEffect(() => {
     // Get the user's current location using browser's geolocation API
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation([latitude, longitude]); // Set the current location state
-  
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
-
-    // Fetch recycle locations and other initializations
-    // ...
+   
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation([latitude, longitude]); // Set the current location state
+        },
+        (error) => {
+          console.error(error);
+        }, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
   }, []);
 
   const showLocationonMap = (row) => {
@@ -162,17 +167,15 @@ const RecyclingLocation = () => {
     setMappingType("locationPosition");
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
-
-  });
-}
+      behavior: "smooth",
+    });
+  };
 
   const getNearestLocationFromCurrentLocation = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
-
-  });
+      behavior: "smooth",
+    });
     setMappingType("nearestLocation");
     dispatch(getAllRecycleLocation(user.token))
       .then(() => {
@@ -445,7 +448,7 @@ const RecyclingLocation = () => {
               <MarkerClusterGroup chunkedLoading>
                 {allRecycleLocations.map((recycleLocation) => (
                   <Marker
-                  key={recycleLocation._id}
+                    key={recycleLocation._id}
                     position={[
                       recycleLocation.latitude,
                       recycleLocation.longitude,
@@ -461,8 +464,13 @@ const RecyclingLocation = () => {
                         )}
                         target="_blank"
                       >
-                        <Button variant="contained" color="primary" sx={{mt: 2}}>Open in Google Maps</Button>
-                        
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          sx={{ mt: 2 }}
+                        >
+                          Open in Google Maps
+                        </Button>
                       </a>
                     </Popup>
                   </Marker>
@@ -481,7 +489,7 @@ const RecyclingLocation = () => {
           }}
         >
           <Header title="RECYCLING LOCATION" />
-         
+
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <TextField
               id="search"
@@ -492,22 +500,22 @@ const RecyclingLocation = () => {
               onChange={handleSearchChange}
             />
             <Button
-            variant="contained"
-            color="primary"
-            onClick={getNearestLocationFromCurrentLocation}
-            sx={{
-              ml: "1rem",
-              padding: "0.5rem 1rem",
-              color: "#000000",
-              backgroundColor: theme.palette.primary.light,
-              "&:hover": {
-                color: theme.palette.neutral[1000],
-              },
-            }}
-          >
-            <MyLocation sx={{mr: 1}}/>
-            {isNonMobile ? "Nearest Location" : "Nearest"}
-          </Button>
+              variant="contained"
+              color="primary"
+              onClick={getNearestLocationFromCurrentLocation}
+              sx={{
+                ml: "1rem",
+                padding: "0.5rem 1rem",
+                color: "#000000",
+                backgroundColor: theme.palette.primary.light,
+                "&:hover": {
+                  color: theme.palette.neutral[1000],
+                },
+              }}
+            >
+              <MyLocation sx={{ mr: 1 }} />
+              {isNonMobile ? "Nearest Location" : "Nearest"}
+            </Button>
             {user.isAdmin && (
               <Button
                 variant="contained"
