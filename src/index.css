@@ -26,6 +26,9 @@
   --box-shadow:0 2rem 3rem var(--color-light);
 }
 
+.root{
+  scroll-behavior: smooth;
+}
 
 body {
   margin: 0;
@@ -36,4 +39,9 @@ body {
   overflow-x: hidden;
   height: 100vh;
   width: 100vw;
+}
+
+.leaflet-container{
+  width:100%;
+  height: 50vh;
 }

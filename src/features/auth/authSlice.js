@@ -9,7 +9,9 @@ const initialState = {
   isSuccess: false,
   isLoading: false,
   message: "",
+  getUsersByPage: [],
   AllUsers: [] ,
+
 };
 
 //Register user
@@ -43,25 +45,30 @@ export const login = createAsyncThunk("auth/login", async (user, thunkAPI) => {
   }
 });
 
-
-
 //Update User Profile
-export const updateProfile = createAsyncThunk("auth/updateProfile", async (user, thunkAPI) => {
-  try {
-    return await authService.updateProfile(user);
-  } catch (error) {
-    const message =
-      (error.response && error.response.data && error.response.data.message) ||
-      error.message ||
-      error;
-    return thunkAPI.rejectWithValue(message);
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async ({token, userUpdateData}, thunkAPI) => {
+    try {
+      return await authService.updateProfile(token, userUpdateData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error;
+      return thunkAPI.rejectWithValue(message);
+    }
   }
-});
+);
 
-//Get All Users
-export const getAllUsers = createAsyncThunk("auth/getAllUsers", async ({token, page, search}, thunkAPI) => {
+
+
+//Get Users By Page
+export const getUsersByPage = createAsyncThunk("auth/getUsersByPage", async ({token, page, search}, thunkAPI) => {
   try {
-    const users = await authService.getAllUsers(token, page, search);
+    const users = await authService.getUsersByPage(token, page, search);
     return users;
   } catch (error) {
     const message =
@@ -72,9 +79,46 @@ export const getAllUsers = createAsyncThunk("auth/getAllUsers", async ({token, p
   }
 });
 
+//Get All Users
+export const getAllUsers = createAsyncThunk("auth/getAllUsers", async (token, thunkAPI) => {
+  try {
+    const users = await authService.getAllUsers(token);
+    return users;
+  } catch (error) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error;
+    return thunkAPI.rejectWithValue(message);
+  }
+}
+
+);
+
 export const logout = createAsyncThunk("auth/logout", async () => {
   await authService.logout();
 });
+
+
+// Update Dark Mode
+export const updateDarkMode = createAsyncThunk(
+  "auth/updateDarkMode",
+  async ({ userId, darkMode, token }, thunkAPI) => {
+    try {
+      const updatedUser = await authService.updateDarkMode(userId, darkMode, token);
+      thunkAPI.dispatch(setMode()); // Update the local state with the new dark mode value
+      return updatedUser;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 export const authSlice = createSlice({
   name: "auth",
@@ -85,6 +129,9 @@ export const authSlice = createSlice({
       state.isError = false;
       state.isSuccess = false;
       state.message = "";
+    },
+    setMode: (state) => {
+      state.user.darkMode = state.user.darkMode === "light" ? "dark" : "light";
     },
   },
   extraReducers: (builder) => {
@@ -106,14 +153,14 @@ export const authSlice = createSlice({
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.message = "";
-        state.isError = false
-        state.isSuccess= false;
-        state.user = null
+        state.isError = false;
+        state.isSuccess = false;
+        state.user = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-      
+
         state.user = action.payload;
       })
       .addCase(login.rejected, (state, action) => {
@@ -135,6 +182,20 @@ export const authSlice = createSlice({
         state.message = action.payload;
         state.user = null;
       })
+      .addCase(getUsersByPage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getUsersByPage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.getUsersByPage = action.payload;
+      })
+      .addCase(getUsersByPage.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        state.getUsersByPage = null;
+      })
       .addCase(getAllUsers.pending, (state) => {
         state.isLoading = true;
       })
@@ -151,10 +212,25 @@ export const authSlice = createSlice({
       })
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
+        state.getUsersByPage = [];
         state.AllUsers = []
+      }).addCase(updateDarkMode.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateDarkMode.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(updateDarkMode.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+
       });
   },
 });
 
-export const { resetUser} = authSlice.actions;
+
+export const { resetUser, setMode} = authSlice.actions;
 export default authSlice.reducer;

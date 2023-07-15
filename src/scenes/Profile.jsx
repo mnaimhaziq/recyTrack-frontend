@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -12,72 +12,149 @@ import {
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import Header from "../components/Header";
+import { updateProfile } from "../features/auth/authSlice";
+
+import { ToastContainer, toast } from "react-toastify";
 
 const Profile = () => {
   const [editMode, setEditMode] = useState(false);
-
+  const [updateButtonDisabled, setUpdateButtonDisabled] = useState(false);
   const auth = useSelector((state) => state.auth);
   const { user } = auth;
-
+  const [userImg, setUserImg] = useState(user.picture.url);
+  const formRef = useRef(null);
   const dispatch = useDispatch();
 
   const theme = useTheme();
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    TransformFileData(file);
+  };
+
+  const TransformFileData = (file) => {
+    const reader = new FileReader();
+
+    if (file) {
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setUserImg(reader.result);
+      };
+    } else {
+      setUserImg("");
+    }
+  };
 
   const initialValues = {
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin,
-    phoneNumber: user.phoneNumber,
     street: user.address.street,
     city: user.address.city,
+    postalCode: user.address.postalCode,
+    country: user.address.country,
   };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("This field is Required"),
     email: Yup.string().email().required("This field is Required"),
+    street: Yup.string().required("This field is Required"),
     city: Yup.string().required("This field is Required"),
     postalCode: Yup.string().required("This field is Required"),
     country: Yup.string().required("This field is Required"),
-    contactNumber: Yup.string().required("This field is Required"),
-    latitude: Yup.number()
-      .typeError("Must be a number")
-      .required("This field is Required"),
-    longitude: Yup.number()
-      .typeError("Must be a number")
-      .required("This field is Required"),
   });
 
   const onSubmit = async (values, { resetForm }) => {
-    const { name, email } = values;
+    setUpdateButtonDisabled(true);
+    const { name, email, street, city, postalCode, country } = values;
 
-    const newFormData = {
+    const userUpdateData = {
       name,
       email,
+      picture: userImg,
+      address: {
+        stress: street,
+        city: city,
+        postalCode: postalCode,
+        country: country,
+      },
     };
+
+    try {
+      await dispatch(updateProfile({ token: user.token, userUpdateData }));
+      toast.success("User Profile Updated!");
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    } finally {
+      // Enable the update button after the request is complete (success or error)
+      setUpdateButtonDisabled(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    formRef.current.resetForm(); // Reset form values to initial values
+    setUserImg(user.picture.url); // Restore the original user image
+    setEditMode(false);
   };
 
   return (
     <Box m="1.5rem 2.5rem " p="0 0 4rem 0">
+      <ToastContainer theme="colored" />
       <Box style={{ display: "flex", justifyContent: "center" }}>
         <Header title="Personal Information" />
       </Box>
 
       <Box>
-      <img src={user.picture.url}/>        
-
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={onSubmit}
+          innerRef={formRef}
         >
           {({ values, handleChange, handleSubmit, errors, touched }) => (
             <form onSubmit={handleSubmit}>
-              <Grid container  sx={{ mt: 2 }} padding="1.5rem 12rem ">
+              <Grid container sx={{ mt: 2 }} padding="1.5rem 12rem ">
                 <Grid item xs={12}>
-                  <Paper elevation={3}
-                    sx={{ borderRadius: "1rem 0 0  1rem", backgroundColor: "theme", p:"2rem 4rem"}}
+                  <Paper
+                    elevation={3}
+                    sx={{
+                      borderRadius: "1rem 0 0  1rem",
+                      backgroundColor: "theme",
+                      p: "2rem 4rem",
+                    }}
                   >
                     <Box p={2} sx={{ minHeight: "60vh" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: "4rem",
+                        }}
+                      >
+                        <img
+                          src={userImg ? userImg : user.picture.url}
+                          width="60px"
+                          alt="User"
+                          style={{ marginBottom: "1rem" }}
+                        />
+                        {editMode && (
+                          <Button variant="contained" component="label">
+                            Upload
+                            <input
+                              hidden
+                              accept="image/*"
+                              type="file"
+                              onChange={handleImageUpload}
+                            />
+                          </Button>
+                        )}
+                      </div>
+
                       <TextField
                         label="name"
                         id="name"
@@ -122,96 +199,99 @@ const Profile = () => {
                         onChange={handleChange}
                         disabled
                       />
+                      <div className="d-flex">
+                        <TextField
+                          className="me-3"
+                          label="Street"
+                          id="street"
+                          fullWidth
+                          sx={{ my: 2 }}
+                          name="street"
+                          value={values.street}
+                          onChange={handleChange}
+                          error={errors.street && touched.street}
+                          helperText={
+                            touched.street && errors.street ? (
+                              <span style={{ color: "red" }}>
+                                {errors.street}
+                              </span>
+                            ) : null
+                          }
+                          disabled={!editMode} // disable the input field when not in edit mode
+                        />
 
-                      <TextField
-                        label="Phone Number"
-                        id="phoneNumber"
-                        fullWidth
-                        sx={{ my: 2 }}
-                        name="PhoneNumber"
-                        value={values.phoneNumber}
-                        onChange={handleChange}
-                        error={errors.phoneNumber && touched.phoneNumber}
-                        helperText={
-                          touched.phoneNumber && errors.phoneNumber ? (
-                            <span style={{ color: "red" }}>{errors.phoneNumber}</span>
-                          ) : null
-                        }
-                        disabled={!editMode} // disable the input field when not in edit mode
-                      />
+                        <TextField
+                          label="City"
+                          id="city"
+                          fullWidth
+                          sx={{ my: 2 }}
+                          name="city"
+                          value={values.city}
+                          onChange={handleChange}
+                          error={errors.city && touched.city}
+                          helperText={
+                            touched.city && errors.city ? (
+                              <span style={{ color: "red" }}>
+                                {errors.city}
+                              </span>
+                            ) : null
+                          }
+                          disabled={!editMode} // disable the input field when not in edit mode
+                        />
+                      </div>
+                      <div className="d-flex">
+                        <TextField
+                          className="me-3"
+                          label="Postal Code"
+                          id="postalCode"
+                          fullWidth
+                          sx={{ my: 2 }}
+                          name="postalCode"
+                          value={values.postalCode}
+                          onChange={handleChange}
+                          error={errors.postalCode && touched.postalCode}
+                          helperText={
+                            touched.postalCode && errors.postalCode ? (
+                              <span style={{ color: "red" }}>
+                                {errors.postalCode}
+                              </span>
+                            ) : null
+                          }
+                          disabled={!editMode} // disable the input field when not in edit mode
+                        />
 
-<TextField
-                        label="Street"
-                        id="street"
-                        fullWidth
-                        sx={{ my: 2 }}
-                        name="street"
-                        value={values.street}
-                        onChange={handleChange}
-                        error={errors.street && touched.street}
-                        helperText={
-                          touched.street && errors.street ? (
-                            <span style={{ color: "red" }}>{errors.street}</span>
-                          ) : null
-                        }
-                        disabled={!editMode} // disable the input field when not in edit mode
-                      />
-
-                      <TextField
-                        label="City"
-                        id="city"
-                        fullWidth
-                        sx={{ my: 2 }}
-                        name="city"
-                        value={values.cityl}
-                        onChange={handleChange}
-                        error={errors.city && touched.city}
-                        helperText={
-                          touched.city && errors.city ? (
-                            <span style={{ color: "red" }}>{errors.city}</span>
-                          ) : null
-                        }
-                        disabled={!editMode} // disable the input field when not in edit mode
-                      />
-
-                      <TextField
-                        label="Role (Only Admin Can Edit)"
-                        id="isAdmin"
-                        fullWidth
-                        sx={{ my: 2 }}
-                        name="isAdmin"
-                        value={values.isAdmin ? "Admin" : "User"}
-                        onChange={handleChange}
-                        disabled
-                      />
-
-                      <TextField
-                        label="Phone Number"
-                        id="phoneNumber"
-                        fullWidth
-                        sx={{ my: 2 }}
-                        name="PhoneNumber"
-                        value={values.phoneNumber}
-                        onChange={handleChange}
-                        error={errors.phoneNumber && touched.phoneNumber}
-                        helperText={
-                          touched.phoneNumber && errors.phoneNumber ? (
-                            <span style={{ color: "red" }}>{errors.phoneNumber}</span>
-                          ) : null
-                        }
-                        disabled={!editMode} // disable the input field when not in edit mode
-                      />
+                        <TextField
+                          label="Country"
+                          id="country"
+                          fullWidth
+                          sx={{ my: 2 }}
+                          name="country"
+                          value={values.country}
+                          onChange={handleChange}
+                          error={errors.country && touched.country}
+                          helperText={
+                            touched.country && errors.country ? (
+                              <span style={{ color: "red" }}>
+                                {errors.country}
+                              </span>
+                            ) : null
+                          }
+                          disabled={!editMode} // disable the input field when not in edit mode
+                        />
+                      </div>
+                      <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end" }}>
                       {editMode ? ( // conditionally render the submit button based on whether the form is in edit mode or not
+                        
                         <>
                           <Button
-                            onClick={() => setEditMode(false)} // enable edit mode when the user clicks the "edit" button
+                            onClick={cancelEdit} // enable edit mode when the user clicks the "edit" button
                             sx={{
                               color: theme.palette.neutral[10],
                               backgroundColor: theme.palette.primary.main,
                               mr: "1rem",
                             }}
                           >
-                            Edit
+                            Cancel
                           </Button>
                           <Button
                             type="submit"
@@ -219,7 +299,7 @@ const Profile = () => {
                               color: theme.palette.neutral[10],
                               backgroundColor: theme.palette.primary.main,
                             }}
-                            onClick={() => setEditMode(false)}
+                            disabled={updateButtonDisabled}
                           >
                             Update
                           </Button>
@@ -234,11 +314,11 @@ const Profile = () => {
                         >
                           Edit
                         </Button>
-                      )}
+                        
+                      )}</div>
                     </Box>
                   </Paper>
                 </Grid>
-              
               </Grid>
             </form>
           )}

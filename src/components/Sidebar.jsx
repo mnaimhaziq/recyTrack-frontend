@@ -46,6 +46,11 @@ const UserNavItems = [
     icon: <History />,
   },
   {
+    url: "recyclinglocation",
+    text: "Recycling Location",
+    icon: <Domain />,
+  },
+  {
     url: "education",
     text: "Education",
     icon: <Article />,
@@ -56,8 +61,8 @@ const UserNavItems = [
     icon: <Leaderboard />,
   },
   {
-    url: "feedback",
-    text: "Feedback",
+    url: "feedbacks",
+    text: "Feedbacks",
     icon: <Feedback />,
   },
   {
@@ -66,8 +71,8 @@ const UserNavItems = [
     icon: null,
   },
   {
-    url: "manageprofile",
-    text: "Manage Profile",
+    url: "userprofile",
+    text: "User Profile",
     icon: <AccountCircle />,
   },
 ];
@@ -132,9 +137,9 @@ function Sidebar({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
-
   useEffect(() => {
     setActive(pathname.substring(1));
+    window.scrollTo(0, 0);
   }, [pathname]);
 
   
@@ -157,7 +162,7 @@ function Sidebar({
               boxSixing: "border-box",
               borderWidth: isNonMobile ? 0 : "2px",
               width: drawerWidth,
-              zIndex: "1000",
+              zIndex: "1100",
               elevation: 3
             },
           }}
@@ -213,6 +218,9 @@ function Sidebar({
                       onClick={() => {
                         navigate(`/${url}`);
                         setActive(url);
+                        if (!isNonMobile) {
+                          setIsSidebarOpen(!isSidebarOpen);
+                        }
                       }}
                       sx={{
                         backgroundColor:

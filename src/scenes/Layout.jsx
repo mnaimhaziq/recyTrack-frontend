@@ -7,24 +7,30 @@ import Sidebar from "../components/Sidebar";
 
 
 function Layout() {
-  const isNonMobile = useMediaQuery("(min-width: 600px)");
+  const isNonMobile = useMediaQuery("(min-width: 942px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const auth = useSelector((state) => state.auth);
   const { user } = auth;
-  const navigate = useNavigate(); 
+  // const navigate = useNavigate(); 
 
  
 
-  useEffect(() => {
-    // redirect to login page if user is null
-    if(!user &&  window.location.pathname === '/register'){
-      navigate('/register')
-    }
-    else if (!user ) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
+  // useEffect(() => {
+  //   // redirect to login page if user is null
+  //   if(!user &&  window.location.pathname === '/register'){
+  //     navigate('/register')
+  //   }
+  //   else if(!user &&  window.location.pathname === '/login'){
+  //     navigate('/login')
+  //   }
+  //   else if(!user &&  window.location.pathname === '/home'){
+  //     navigate('/home')
+  //   }
+  //   else if (!user ) {
+  //     navigate('/home');
+  //   }
+  // }, [user, navigate]);
 
   return (
     <Box display={isNonMobile ? "flex" : "block"} width="100%" height="100%">
