@@ -61,7 +61,7 @@ if (hour >= 5 && hour < 12) {
             <Box
                 component="img"
                 alt="profile"
-                src={user.picture.url}
+                src={user.picture.secure_url}
                 height="32px"
                 width="32px"
                 borderRadius="50%"

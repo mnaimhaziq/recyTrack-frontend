@@ -20,7 +20,7 @@ function Users({ user }) {
       {user.picture && (
         <Avatar
           alt={user.name}
-          src={user.picture.url}
+          src={user.picture.secure_url}
           sx={{ width: 80, height: 80 }}
         />
       )}

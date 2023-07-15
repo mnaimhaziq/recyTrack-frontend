@@ -91,7 +91,7 @@ function Navbar({user, isSidebarOpen, setIsSidebarOpen, isNonMobile }) {
             <Box
                 component="img"
                 alt="profile"
-                src={user.picture.url}
+                src={user.picture.secure_url}
                 height="32px"
                 width="32px"
                 borderRadius="50%"

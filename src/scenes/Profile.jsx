@@ -21,7 +21,7 @@ const Profile = () => {
   const [updateButtonDisabled, setUpdateButtonDisabled] = useState(false);
   const auth = useSelector((state) => state.auth);
   const { user } = auth;
-  const [userImg, setUserImg] = useState(user.picture.url);
+  const [userImg, setUserImg] = useState(user.picture.secure_url);
   const formRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -96,7 +96,7 @@ const Profile = () => {
 
   const cancelEdit = () => {
     formRef.current.resetForm(); // Reset form values to initial values
-    setUserImg(user.picture.url); // Restore the original user image
+    setUserImg(user.picture.secure_url); // Restore the original user image
     setEditMode(false);
   };
 
@@ -137,7 +137,7 @@ const Profile = () => {
                         }}
                       >
                         <img
-                          src={userImg ? userImg : user.picture.url}
+                          src={userImg ? userImg : user.picture.secure_url}
                           width="60px"
                           alt="User"
                           style={{ marginBottom: "1rem" }}
