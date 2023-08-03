@@ -1,0 +1,36 @@
+.custom-toolbar .ql-toolbar .ql-stroke {
+  fill: none;
+  stroke: #487e27 ;
+}
+
+.custom-toolbar .ql-toolbar .ql-fill {
+  fill: #487e27 ;
+}
+
+.custom-toolbar .ql-toolbar .ql-picker {
+  color: #487e27 ;
+}
+
+
+
+.swiper-button-next {
+  color: white !important;
+  /* Change the color value to your desired color */
+  font-weight: bolder;
+  background-color: rgba(71, 167, 12, 0.3);
+  padding: 2rem;
+  border-radius: 50%;
+}
+
+.swiper-button-prev {
+  color: white !important;
+  /* Change the color value to your desired color */
+  font-weight: bolder;
+  background-color: rgba(71, 167, 12, 0.3);
+  padding: 2rem;
+  border-radius: 50%;
+}
+
+.swiper-container {
+  height: auto !important;
+}

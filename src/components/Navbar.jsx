@@ -9,7 +9,7 @@ import {
 import FlexBetween from "./FlexBetween";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setMode, updateDarkMode } from "../features/auth/authSlice";
+import { setMode, updateDarkMode, logout, resetUser } from "../redux/Auth/AuthSlice";
 import {
   AppBar,
   IconButton,
@@ -21,15 +21,15 @@ import {
   Menu,
   MenuItem
 } from "@mui/material";
-
-import { logout, resetUser } from "../features/auth/authSlice";
-import { resetRecycling } from "../features/recycle/recycleSlice";
+import { resetRecycling } from "../redux/Recycling/RecyclingSlice";
+import { resetEducation } from "../redux/Education/EducationSlice";
+import { resetDashboard } from "../redux/Dashboard/DashboardSlice";
+import { resetLeaderboard } from "../redux/Leaderboard/LeaderboardSlice";
 
 function Navbar({user, isSidebarOpen, setIsSidebarOpen, isNonMobile }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-
   const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
   const handleClick = (e) => setAnchorEl(e.currentTarget);
@@ -45,6 +45,9 @@ function Navbar({user, isSidebarOpen, setIsSidebarOpen, isNonMobile }) {
     dispatch(logout());
     dispatch(resetUser());
     dispatch(resetRecycling())
+    dispatch(resetEducation());
+    dispatch(resetDashboard());
+    dispatch(resetLeaderboard());
     navigate('/')
 
   };

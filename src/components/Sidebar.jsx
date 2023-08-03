@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
-import ProfileImage from "../assets/profile.jpeg";
-import "./Sidebar.css";
 import {
   Box,
-  Divider,
   Drawer,
   IconButton,
   List,
@@ -25,14 +22,9 @@ import {
   Feedback,
   Article,
   Leaderboard,
-  BarChart,
-  Logout,
   AccountCircle,
   GroupAdd,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
-
-import { logout, reset } from "../features/auth/authSlice";
 
 const UserNavItems = [
   {
@@ -135,19 +127,26 @@ function Sidebar({
   const { pathname } = useLocation();
   const [active, setActive] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const theme = useTheme();
   useEffect(() => {
     setActive(pathname.substring(1));
     window.scrollTo(0, 0);
   }, [pathname]);
 
+
+
+  const [navItems, setNavItems] = useState(user && user.isAdmin ? AdminNavItems : UserNavItems);
+
+  useEffect(() => {
+    setNavItems(user && user.isAdmin ? AdminNavItems : UserNavItems);
+  }, [user]);
+
+
   
 
-  const navItems = user && user.isAdmin ? AdminNavItems : UserNavItems;
 
   return (
-    <Box component="nav">
+    <Box className="sidebar" component="nav">
       {isSidebarOpen && (
         <Drawer 
           open={isSidebarOpen}
@@ -223,6 +222,7 @@ function Sidebar({
                         }
                       }}
                       sx={{
+                        borderLeft: active === lcText && "5px solid green",
                         backgroundColor:
                           active === lcText
                             ? theme.palette.primary.main
