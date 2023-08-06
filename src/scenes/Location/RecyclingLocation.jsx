@@ -559,9 +559,7 @@ const RecyclingLocation = () => {
                 padding: "0.5rem 1rem",
                 color: "#000000",
                 backgroundColor: theme.palette.primary.light,
-                "&:hover": {
-                  color: theme.palette.neutral[1000],
-                },
+              
               }}
             >
               <MyLocation sx={{ mr: 1 }} />
@@ -577,9 +575,7 @@ const RecyclingLocation = () => {
                   padding: "0.5rem 1rem",
                   color: "#000000",
                   backgroundColor: theme.palette.primary.light,
-                  "&:hover": {
-                    color: theme.palette.neutral[1000],
-                  },
+               
                 }}
               >
                 <Add />
@@ -880,7 +876,7 @@ const RecyclingLocation = () => {
               sx={{
                 m: "1rem 0",
                 "& .Mui-selected": {
-                  backgroundColor: "rgba(101, 180, 55, 0.4) !important",
+                  backgroundColor: "rgba(16, 185, 129, 0.7) !important",
                 },
               }}
               count={totalPages}

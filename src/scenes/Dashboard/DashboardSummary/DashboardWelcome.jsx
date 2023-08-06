@@ -14,6 +14,10 @@ import {
 export const DashboardWelcome = (props) => {
   const { sx, user } = props;
 
+  const fullNameArray = user.name.split(" ");
+  // Get the first name from the array
+  const firstName = fullNameArray[0];
+
   const now = new Date();
   const hour = now.getHours();
   let greeting;
@@ -41,7 +45,7 @@ export const DashboardWelcome = (props) => {
               {greeting}
             </Typography>
             <Typography variant="h2" sx={{ fontWeight: "bold" }}>
-              {user.name.toUpperCase()}
+              {firstName.toUpperCase()}
             </Typography>
             <Typography variant="h6">How was your day?</Typography>
           </Stack>

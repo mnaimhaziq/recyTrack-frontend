@@ -11,7 +11,7 @@ const FeedbackTableRow = React.memo(({ feedback, toggleResolvedStatus }) => {
       <TableCell>{feedback.user.name}</TableCell>
       <TableCell>{feedback.comment}</TableCell>
       <TableCell>{new Date(feedback.createdAt).toLocaleString()}</TableCell>
-      <TableCell>
+      <TableCell sx={{display: 'flex', justifyContent: 'center'}}>
         <IconButton onClick={() => toggleResolvedStatus(feedback._id)}>
           {feedback.resolved ? (
             <CheckCircle
@@ -27,6 +27,7 @@ const FeedbackTableRow = React.memo(({ feedback, toggleResolvedStatus }) => {
                 color: "red",
                 fontSize: "32px",
                 transition: "color 0.5s",
+                
               }}
             />
           )}

@@ -398,6 +398,9 @@ const AggregatedTable = () => {
                     <MenuItem value="E-waste Recycling">
                       E-waste Recycling
                     </MenuItem>
+                    <MenuItem value="E-waste Recycling">
+                    Textile Recycling
+                    </MenuItem>
                   </Select>
                   <InputLabel htmlFor="recyclingMethod">
                     Recycling Method
@@ -412,13 +415,17 @@ const AggregatedTable = () => {
                     value={values.wasteType}
                     onChange={handleChange}
                   >
-                    <MenuItem value="Plastic">Plastic</MenuItem>
+                   <MenuItem value="Plastic">Plastic</MenuItem>
                     <MenuItem value="Paper">Paper</MenuItem>
                     <MenuItem value="Glass">Glass </MenuItem>
                     <MenuItem value="Metal">Metal</MenuItem>
                     <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
                     <MenuItem value="Can">Can (Can)</MenuItem>
-                  </Select>
+                    <MenuItem value="Cardboard">Cardboard</MenuItem>
+                    <MenuItem value="Aluminum">Aluminum</MenuItem>
+                    <MenuItem value="Electronics">Electronics</MenuItem>
+                    <MenuItem value="Textile">Textile</MenuItem>
+                </Select>
                   <InputLabel htmlFor="wasteType">Waste Type</InputLabel>
                 </FormControl>
                 <TextField
@@ -443,9 +450,10 @@ const AggregatedTable = () => {
                     sx={{
                         padding: "0.5rem 1rem",
                         color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.main,
                         "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.neutral[10]
                         },
                       }}
                   >
@@ -456,9 +464,10 @@ const AggregatedTable = () => {
                     sx={{
                         padding: "0.5rem 1rem",
                         color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.main,
                         "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.neutral[10]
                         },
                       }}
                   >
@@ -527,6 +536,9 @@ const AggregatedTable = () => {
                       <MenuItem value="E-waste Recycling">
                         E-waste Recycling
                       </MenuItem>
+                      <MenuItem value="E-waste Recycling">
+                    Textile Recycling
+                    </MenuItem>
                     </Select>
                     <InputLabel htmlFor="recyclingMethod">
                       Recycling Method
@@ -541,13 +553,17 @@ const AggregatedTable = () => {
                       value={values.wasteType}
                       onChange={handleChange}
                     >
-                      <MenuItem value="Plastic">Plastic</MenuItem>
-                      <MenuItem value="Paper">Paper</MenuItem>
-                      <MenuItem value="Glass">Glass </MenuItem>
-                      <MenuItem value="Metal">Metal</MenuItem>
-                      <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
-                      <MenuItem value="Can">Can (Can)</MenuItem>
-                    </Select>
+                       <MenuItem value="Plastic">Plastic</MenuItem>
+                    <MenuItem value="Paper">Paper</MenuItem>
+                    <MenuItem value="Glass">Glass </MenuItem>
+                    <MenuItem value="Metal">Metal</MenuItem>
+                    <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
+                    <MenuItem value="Can">Can (Can)</MenuItem>
+                    <MenuItem value="Cardboard">Cardboard</MenuItem>
+                    <MenuItem value="Aluminum">Aluminum</MenuItem>
+                    <MenuItem value="Electronics">Electronics</MenuItem>
+                    <MenuItem value="Textile">Textile</MenuItem>
+                 </Select>
                     <InputLabel htmlFor="wasteType">Waste Type</InputLabel>
                   </FormControl>
                   <TextField
@@ -572,9 +588,10 @@ const AggregatedTable = () => {
                       sx={{
                         padding: "0.5rem 1rem",
                         color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.main,
                         "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.neutral[10]
                         },
                       }}
                     >
@@ -585,9 +602,10 @@ const AggregatedTable = () => {
                       sx={{
                         padding: "0.5rem 1rem",
                         color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.main,
                         "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.neutral[10]
                         },
                       }}
                     >

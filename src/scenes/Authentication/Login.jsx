@@ -12,6 +12,7 @@ import {
   getRecyclingHistoryForAllUsersByPage,
 } from "../../redux/Recycling/RecyclingFunction/HistoryFunction";
 import { getMostRecycledWasteTypeByUserId } from "../../redux/Dashboard/DashboardFunction/DashboardFunction";
+import { Typography, useTheme } from "@mui/material";
 
 const LoginScreen = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const LoginScreen = () => {
   const page = null;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const theme = useTheme();
   const auth = useSelector((state) => state.auth);
   const { user, isLoading, isSuccess, isError } = auth;
 
@@ -99,7 +100,7 @@ const LoginScreen = () => {
     <div className="auth-body">
       <ToastContainer />
       <Card className="auth ">
-        <Card.Title as="h2" className="text-center mb-5">
+        <Card.Title as="h1" className="text-center mb-5 font-medium text-3xl">
           Login
         </Card.Title>
         <Form onSubmit={submitHandler}>
@@ -124,12 +125,12 @@ const LoginScreen = () => {
             />
           </Form.Group>
 
-          <Button variant="primary" type="submit">
+          <Button  type="submit">
             Submit
           </Button>
           <p>
             {" "}
-            New User? <Link to={"/register"}>Register</Link>
+            New User? <Link to={"/register"} className="navigationlink">Register</Link>
           </p>
         </Form>
       </Card>

@@ -128,7 +128,7 @@ function Dashboard() {
 
       <Box component="main" sx={{ flexGrow: 1, py: 2 }}>
         <Grid container spacing={3}>
-          <Grid xs={12} sm={6} lg={3}>
+          <Grid xs={12} sm={6} lg={6} xl ={3}>
             <DashboardWelcome
               sx={{
                 height: "100%",
@@ -138,7 +138,7 @@ function Dashboard() {
               user={user}
             />
           </Grid>
-          <Grid xs={12} sm={6} lg={3}>
+          <Grid xs={12} sm={6} lg={6} xl ={3}>
             {totalRecyclingHistoryByUserId && (
               <DashboardTotalRecycling
                 previousMonthTotal={
@@ -168,7 +168,7 @@ function Dashboard() {
               />
             )}
           </Grid>
-          <Grid xs={12} sm={6} lg={3}>
+          <Grid xs={12} sm={6} lg={6} xl ={3}>
             <DashboardPoint
               difference={
                 user.isAdmin
@@ -191,7 +191,7 @@ function Dashboard() {
               }
             />
           </Grid>
-          <Grid xs={12} sm={6} lg={3}>
+          <Grid xs={12} sm={6} lg={6} xl ={3}>
             {(mostRecycledWasteType || mostRecycledWasteTypeByUserId) && (
               <DashboardMostType
                 type={
@@ -206,7 +206,7 @@ function Dashboard() {
               />
             )}
           </Grid>
-          <Grid xs={12} md={6} lg={4}>
+          <Grid xs={12} md={6} lg={6} xl={4}>
             <DashboardTypeOfRecycling
               chartSeries={chartSeries}
               labels={labels}
@@ -217,7 +217,7 @@ function Dashboard() {
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={8}>
+          <Grid xs={12} md={6} lg={6} xl={8}>
             {(recyclingHistoryByUserIdAndPage ||
               recyclingHistoryForAllUsersByPage) && (
               <DashboardLatestHistory

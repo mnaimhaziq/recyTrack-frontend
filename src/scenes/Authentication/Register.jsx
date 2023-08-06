@@ -10,10 +10,10 @@ import { useMediaQuery, useTheme } from "@mui/material";
 
 const Register = () => {
   const [userImg, setUserImg] = useState("");
-  const [registeredFormData, setRegisteredFormData] = useState({
+  const [formData, setFormData] = useState({
     name: "",
-    registeredEmail: "",
-    registerPassword: "",
+    email: "",
+    password: "",
     confirmPassword: "",
     address: {
       street: "",
@@ -23,7 +23,7 @@ const Register = () => {
     },
   });
 
-  const { name, registeredEmail, registerPassword, confirmPassword, address } = registeredFormData;
+  const { name, email, password, confirmPassword, address } = formData;
   const { street, city, postalCode, country } = address;
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -59,7 +59,7 @@ const Register = () => {
 
   const onChange = (e) => {
     if (e.target.name.startsWith("address.")) {
-      setRegisteredFormData((prevState) => ({
+      setFormData((prevState) => ({
         ...prevState,
         address: {
           ...prevState.address,
@@ -67,7 +67,7 @@ const Register = () => {
         },
       }));
     } else {
-      setRegisteredFormData((prevState) => ({
+      setFormData((prevState) => ({
         ...prevState,
         [e.target.name]: e.target.value,
       }));
@@ -78,8 +78,8 @@ const Register = () => {
     e.preventDefault();
     if (
       name === "" ||
-      registerPassword === "" ||
-      registeredEmail === "" ||
+      password === "" ||
+      email === "" ||
       confirmPassword === "" ||
       userImg === "" ||
       street === "" ||
@@ -90,13 +90,13 @@ const Register = () => {
       toast.error("Please fill in all required fields.")
       return;
     }
-      if (registerPassword !== confirmPassword) {
+      if (password !== confirmPassword) {
         toast.error("Password do not match");
       } else {
         const userData = {
           name,
-          email : registeredEmail,
-          password : registerPassword,
+          email,
+          password,
           picture: userImg,
           address: {
             street: street,
@@ -117,7 +117,7 @@ const Register = () => {
     <div className="register-body">
       <ToastContainer />
       <Card className="register">
-        <Card.Title as="h2" className="text-center mb-2">
+        <Card.Title as="h1" className="text-center mb-2 font-medium text-3xl">
           Register
         </Card.Title>
         <Form onSubmit={submitHandler}>
@@ -138,7 +138,7 @@ const Register = () => {
               type="email"
               placeholder="Enter email"
               name="email"
-              value={registeredEmail}
+              value={email}
               onChange={onChange}
               autoComplete="nope"
             />
@@ -150,7 +150,7 @@ const Register = () => {
                 type="password"
                 placeholder="Password"
                 name="password"
-                value={registerPassword}
+                value={password}
                 onChange={onChange}
                 autoComplete="nope"
               />
@@ -183,7 +183,7 @@ const Register = () => {
                 type="text"
                 placeholder="Enter street"
                 name="address.street"
-                value={registeredFormData.address.street}
+                value={formData.address.street}
                 onChange={onChange}
                 autoComplete="nope"
               />
@@ -195,7 +195,7 @@ const Register = () => {
                 type="text"
                 placeholder="Enter city"
                 name="address.city"
-                value={registeredFormData.address.city}
+                value={formData.address.city}
                 onChange={onChange}
                 autoComplete="nope"
               />
@@ -208,7 +208,7 @@ const Register = () => {
                 type="text"
                 placeholder="Enter postal code"
                 name="address.postalCode"
-                value={registeredFormData.address.postalCode}
+                value={formData.address.postalCode}
                 onChange={onChange}
                 autoComplete="nope"
               />
@@ -219,7 +219,7 @@ const Register = () => {
                 type="text"
                 placeholder="Enter country"
                 name="address.country"
-                value={registeredFormData.address.country}
+                value={formData.address.country}
                 onChange={onChange}
                 autoComplete="nope"
               />
@@ -230,7 +230,7 @@ const Register = () => {
           </Button>
           <p>
             {" "}
-            Have an account? <Link to={"/login"}>Login</Link>
+            Have an account? <Link to={"/login"} className="navigationlink">Login</Link>
           </p>
         </Form>
       </Card>

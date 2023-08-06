@@ -15,6 +15,9 @@ import { calculateAndRankUsers } from "../../redux/Leaderboard/LeaderboardFuncti
 import { useUser } from "../../context/UserContext";
 import FlexBetween from "../../components/FlexBetween";
 import { Add, Share } from "@mui/icons-material";
+import medal1 from '../../assets/medal1.png';
+import medal2 from '../../assets/medal2.png';
+import medal3 from '../../assets/medal3.png';
 
 const HexagonWrapper = styled("div")(({ theme }) => ({
   position: "relative",
@@ -67,7 +70,8 @@ const Leaderboard = () => {
     ? [sortedUsers[1], sortedUsers[0], sortedUsers[2]]
     : [sortedUsers[0], sortedUsers[1], sortedUsers[2]];
 
-  const leaderboardItemHeights = ["45%", "35%", "25%"];
+  const leaderboardItemHeights = ["55%", "45%", "35%"];
+  const medals = [medal1, medal2, medal3];
 
   const getNumberSuffix = (num) => {
     const j = num % 10;
@@ -189,13 +193,12 @@ const Leaderboard = () => {
                         ? leaderboardItemHeights[rankeduser.rank - 1]
                         : leaderboardItemHeights[2],
                       marginBottom: "1rem", // Add some margin at the bottom for spacing
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "flex-end", // Align the text to the bottom of the box
                     }}
+                    className="flex justify-center items-end shadow-lg"
                   >
-                    <div style={{ color: "black" }}>
-                      <h4>{rankeduser.totalPoints}</h4>
+                    <div style={{ color: "black", }}  >
+                      <img className="w-14"  src={medals[rankeduser.rank - 1]} alt="" />
+                      <h4 style={{margin: 0}}>{rankeduser.totalPoints}</h4>
                       <h6>{`${rankeduser.rank}${getNumberSuffix(
                         rankeduser.rank
                       )} place`}</h6>
@@ -209,6 +212,7 @@ const Leaderboard = () => {
                 {otherThanTopThreeUsers &&
             otherThanTopThreeUsers.map((rankeduser, idx) => (
               <Grid
+              key={rankeduser.rank}
                 xs={12} lg={8}
                 sx={{
                   backgroundColor: getBackgroundColor(rankeduser.rank),

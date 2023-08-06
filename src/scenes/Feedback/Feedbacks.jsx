@@ -142,7 +142,7 @@ function Feedbacks() {
                   <TableCell style={{ color: "#ffffff" }}>NAME</TableCell>
                   <TableCell style={{ color: "#ffffff" }}>COMMENT</TableCell>
                   <TableCell style={{ color: "#ffffff" }}>CREATED AT</TableCell>
-                  <TableCell style={{ color: "#ffffff" }}>RESOLVED</TableCell>
+                  <TableCell style={{ color: "#ffffff" }}>MARK AS READ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

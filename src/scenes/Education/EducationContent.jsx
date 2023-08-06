@@ -232,7 +232,7 @@ export const Education_Content = () => {
                       </Typography>
                     </Box>
                   </Box>
-                  <Button
+                 {(user.isAdmin && (user.name === item.author_id.name) ) && <> <Button
                     onClick={(event) => handleClick(index, event)}
                     sx={{
                       borderRadius: "50%",
@@ -260,7 +260,7 @@ export const Education_Content = () => {
                     <MenuItem onClick={() => handleDelete(index, item._id)}>
                       Delete
                     </MenuItem>
-                  </Menu>
+                  </Menu></> }
                 </FlexBetween>
                 <Box sx={{ margin: " 0.8rem 1.3rem" }}>
                   <div style={{marginBottom: '1rem'}}>

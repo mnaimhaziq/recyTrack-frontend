@@ -86,8 +86,8 @@ function AllUsers() {
       </Box>
        
         <Row>{AllUsers.data && AllUsers.data.map((user) => (
-          <Col key={user._id} sm={12} md={4} lg={3}>
-          <Users user={user}  />
+          <Col key={user._id} sm={12} md={6} lg={4} xl={3}>
+          <Users user={user} key={user._id}  />
         </Col>
         ))}
         </Row>
@@ -95,7 +95,7 @@ function AllUsers() {
           <Pagination
             sx={{
               m: "2rem 0",
-              "& .Mui-selected": { backgroundColor: "rgba(101, 180, 55, 0.4) !important" },
+              "& .Mui-selected": { backgroundColor: "rgba(16, 185, 129, 0.7) !important" },
             }}
             count={totalPages}
             page={page}

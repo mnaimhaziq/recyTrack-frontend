@@ -3,10 +3,13 @@
 .auth-body {
     /* background: rgba(175,222,246, 1);
   background: linear-gradient(90deg, rgba(175,222,246,1) 0%, rgba(247,175,255,1) 100%); */
-  /* background: rgb(255,252,9);
+    /* background: rgb(255,252,9);
 background: linear-gradient(90deg, rgba(255,252,9,0.7) 0%, rgba(59,232,0,0.7) 100%); */
-background: rgb(230,240,255);
-background: linear-gradient(90deg, rgb(218, 243, 201) 0%, rgba(201, 255, 166, 1) 100%  );
+    background: rgb(230, 240, 255);
+    background: linear-gradient(45deg, rgba(0, 223, 154, 0.5) 0%, rgba(0, 223, 154, 1) 100%);
+    background-image: url(../../assets/wallpaper.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
     height: 100vh;
     width: 100%;
     display: flex;
@@ -23,19 +26,20 @@ background: linear-gradient(90deg, rgb(218, 243, 201) 0%, rgba(201, 255, 166, 1)
     box-shadow: var(--box-shadow);
     transition: .5s;
     color: black;
-    
+
 
 }
 
-.auth:hover{
+.auth:hover {
     box-shadow: none;
 }
 
 
-.auth Button{
+.auth Button {
     width: 100%;
     display: block;
     margin: 1.5rem auto;
+    background-color: #059669 !important;
 }
 
 .register-body {
@@ -43,8 +47,11 @@ background: linear-gradient(90deg, rgb(218, 243, 201) 0%, rgba(201, 255, 166, 1)
     background: linear-gradient(90deg, rgba(175,222,246,1) 0%, rgba(247,175,255,1) 100%); */
     /* background: rgb(255,252,9);
     background: linear-gradient(90deg, rgba(255,252,9,0.7) 0%, rgba(59,232,0,0.7) 100%); */
-    background: rgb(230,240,255);
-    background: linear-gradient(90deg, rgb(218, 243, 201) 0%, rgba(201, 255, 166, 1) 100%  );
+    background: rgb(230, 240, 255);
+    background: linear-gradient(45deg, rgba(0, 223, 154, 0.5) 0%, rgba(0, 223, 154, 1) 100%);
+    background-image: url(../../assets/wallpaper.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
     height: 100vh;
     width: 100%;
     display: flex;
@@ -55,23 +62,28 @@ background: linear-gradient(90deg, rgb(218, 243, 201) 0%, rgba(201, 255, 166, 1)
 
 .register {
     min-width: 25% !important;
-    margin:  35px;
+    margin: 35px;
     padding: 1.5rem 3rem 1rem;
-    border-radius: 20px;
+    border-radius: 20px !important;
     box-shadow: var(--box-shadow);
     transition: .5s;
     color: black;
-    
+
 
 }
 
-.register:hover{
+.register:hover {
     box-shadow: none;
 }
 
 
-.register Button{
+.register Button {
     width: 100%;
     display: block;
     margin: 1.5rem auto;
+    background-color: #059669 !important;
+}
+
+.navigationlink {
+    color:#10b981 !important;
 }

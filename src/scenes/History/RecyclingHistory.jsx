@@ -67,6 +67,7 @@ const RecyclingHistory = () => {
   const theme = useTheme();
 
   useEffect(() => {
+    dispatch(getAllRecycleLocation(user.token));
     if (!user.isAdmin) {
       dispatch(
         getRecycleHistoryByUserIdAndPage({
@@ -82,14 +83,13 @@ const RecyclingHistory = () => {
       });
     }
   }, [dispatch, user.token, page, user._id, totalPages]);
-  
-  useEffect(() => {
-    dispatch(getAllRecycleLocation( user.token));
-    // eslint-disable-next-line
-  }, []);
+
+  // useEffect(() => {
+  //   dispatch(getAllRecycleLocation( user.token));
+
+  // }, [user]);
 
   const handleClickOpen = () => {
-   
     setOpen(true);
   };
 
@@ -109,30 +109,28 @@ const RecyclingHistory = () => {
 
   const handleDelete = async (id) => {
     await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-         dispatch(deleteRecycleHistory({ id, token: user.token })).then(
-          () => {
-            dispatch(
-              getRecycleHistoryByUserIdAndPage({
-                id: user._id,
-                page,
-                token: user.token,
-              })
-            );
-          }
-        );
+        dispatch(deleteRecycleHistory({ id, token: user.token })).then(() => {
+          dispatch(
+            getRecycleHistoryByUserIdAndPage({
+              id: user._id,
+              page,
+              token: user.token,
+            })
+          );
+        });
         toast.error("Recycling History Has Been Deleted ");
-        }});
-      };
-  
+      }
+    });
+  };
 
   const initialValues = {
     user_id: user.isAdmin ? "" : user._id,
@@ -191,8 +189,13 @@ const RecyclingHistory = () => {
 
   const onSubmit = async (values, { resetForm }) => {
     setIsButtonDisabled(true);
-    const { user_id, recyclingLocationId, recyclingMethod, quantity, wasteType } =
-      values;
+    const {
+      user_id,
+      recyclingLocationId,
+      recyclingMethod,
+      quantity,
+      wasteType,
+    } = values;
 
     const newFormData = {
       user_id,
@@ -201,30 +204,26 @@ const RecyclingHistory = () => {
       quantity: calculateQuantity(quantity, wasteType),
       wasteType,
     };
-   
 
-    await dispatch(
-      createRecyclingHistory({ newFormData, token: user.token })
-    ).then(() => {
-      dispatch(
-        getRecycleHistoryByUserIdAndPage({
-          id: user._id,
-          page,
-          token: user.token,
-        })
-      );
-    }).then(() => {
-      if(user.isAdmin){
-        dispatch(getAllRecyclingHistories(user.token));
-      }
-      setOpen(false);
-      setIsButtonDisabled(false);
-      toast.success("New Recycling History Created ");
-      resetForm();
-    });
-
-   
-    
+    await dispatch(createRecyclingHistory({ newFormData, token: user.token }))
+      .then(() => {
+        dispatch(
+          getRecycleHistoryByUserIdAndPage({
+            id: user._id,
+            page,
+            token: user.token,
+          })
+        );
+      })
+      .then(() => {
+        if (user.isAdmin) {
+          dispatch(getAllRecyclingHistories(user.token));
+        }
+        setOpen(false);
+        setIsButtonDisabled(false);
+        toast.success("New Recycling History Created ");
+        resetForm();
+      });
   };
 
   const onSubmitEdit = async (values, { resetForm }) => {
@@ -242,22 +241,22 @@ const RecyclingHistory = () => {
 
     await dispatch(
       updateRecycleHistoryById({ id, newFormData, token: user.token })
-    ).then(() => {
-      dispatch(
-        getRecycleHistoryByUserIdAndPage({
-          id: user._id,
-          page,
-          token: user.token,
-        })
-      );
-    }).then(() => {
-      setOpenEditDialog(false);  
-      setIsButtonDisabled(false);
-      toast.success("Recycling History Has Been Edited ");
-      resetForm();
-    });
-   
-    
+    )
+      .then(() => {
+        dispatch(
+          getRecycleHistoryByUserIdAndPage({
+            id: user._id,
+            page,
+            token: user.token,
+          })
+        );
+      })
+      .then(() => {
+        setOpenEditDialog(false);
+        setIsButtonDisabled(false);
+        toast.success("Recycling History Has Been Edited ");
+        resetForm();
+      });
   };
 
   return (
@@ -283,9 +282,6 @@ const RecyclingHistory = () => {
               padding: "0.5rem 1rem",
               color: "#000000",
               backgroundColor: theme.palette.primary.light,
-              "&:hover": {
-                color: theme.palette.neutral[1000],
-              },
             }}
           >
             <Add /> {isNonMobile ? "Create New Recycling History" : "create"}
@@ -293,7 +289,7 @@ const RecyclingHistory = () => {
         </Box>
       </Box>
 
-     <div>
+      <div>
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Add New Recycling History</DialogTitle>
 
@@ -310,30 +306,28 @@ const RecyclingHistory = () => {
             >
               {({ values, handleChange, handleSubmit, errors, touched }) => (
                 <Form onSubmit={handleSubmit}>
-                  {user.isAdmin && <FormControl fullWidth sx={{ margin: "1rem 0" }}>
-                    <Select
-                      labelId="user"
-                      label="user"
-                      id="user"
-                      name="user_id"
-                      value={values.user_id}
-                      onChange={handleChange}
-                    >
-                      {AllUsers.data
-                        .slice()
-                        .sort((a, b) =>
-                          a.name.localeCompare(b.name)
-                        ) // Sort the options alphabetically
-                        .map((data) => (
-                          <MenuItem key={data._id} value={data._id}>
-                            {data.name}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                    <InputLabel htmlFor="user">
-                      User
-                    </InputLabel>
-                  </FormControl>}
+                  {user.isAdmin && (
+                    <FormControl fullWidth sx={{ margin: "1rem 0" }}>
+                      <Select
+                        labelId="user"
+                        label="user"
+                        id="user"
+                        name="user_id"
+                        value={values.user_id}
+                        onChange={handleChange}
+                      >
+                        {AllUsers.data
+                          .slice()
+                          .sort((a, b) => a.name.localeCompare(b.name)) // Sort the options alphabetically
+                          .map((data) => (
+                            <MenuItem key={data._id} value={data._id}>
+                              {data.name}
+                            </MenuItem>
+                          ))}
+                      </Select>
+                      <InputLabel htmlFor="user">User</InputLabel>
+                    </FormControl>
+                  )}
                   <FormControl fullWidth sx={{ margin: "1rem 0" }}>
                     <Select
                       labelId="locationName"
@@ -374,6 +368,9 @@ const RecyclingHistory = () => {
                       <MenuItem value="E-waste Recycling">
                         E-waste Recycling
                       </MenuItem>
+                      <MenuItem value="E-waste Recycling">
+                    Textile Recycling
+                    </MenuItem>
                     </Select>
                     <InputLabel htmlFor="recyclingMethod">
                       Recycling Method
@@ -388,13 +385,17 @@ const RecyclingHistory = () => {
                       value={values.wasteType}
                       onChange={handleChange}
                     >
-                      <MenuItem value="Plastic">Plastic</MenuItem>
-                      <MenuItem value="Paper">Paper</MenuItem>
-                      <MenuItem value="Glass">Glass </MenuItem>
-                      <MenuItem value="Metal">Metal</MenuItem>
-                      <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
-                      <MenuItem value="Can">Can (Can)</MenuItem>
-                    </Select>
+                    <MenuItem value="Plastic">Plastic</MenuItem>
+                    <MenuItem value="Paper">Paper</MenuItem>
+                    <MenuItem value="Glass">Glass </MenuItem>
+                    <MenuItem value="Metal">Metal</MenuItem>
+                    <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
+                    <MenuItem value="Can">Can (Can)</MenuItem>
+                    <MenuItem value="Cardboard">Cardboard</MenuItem>
+                    <MenuItem value="Aluminum">Aluminum</MenuItem>
+                    <MenuItem value="Electronics">Electronics</MenuItem>
+                    <MenuItem value="Textile">Textile</MenuItem>
+                  </Select>
                     <InputLabel htmlFor="wasteType">Waste Type</InputLabel>
                   </FormControl>
                   <TextField
@@ -419,9 +420,10 @@ const RecyclingHistory = () => {
                       sx={{
                         padding: "0.5rem 1rem",
                         color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.main,
                         "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.neutral[10],
                         },
                       }}
                     >
@@ -433,9 +435,10 @@ const RecyclingHistory = () => {
                       sx={{
                         padding: "0.5rem 1rem",
                         color: theme.palette.neutral[1000],
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.main,
                         "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.neutral[10],
                         },
                       }}
                     >
@@ -448,97 +451,110 @@ const RecyclingHistory = () => {
           </DialogContent>
         </Dialog>
       </div>
-      {user.isAdmin ? <AggregatedTable/> :
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead style={{ backgroundColor: theme.palette.primary.main }}>
-              <TableRow>
-                <TableCell style={{ color: "#ffffff" }}>
-                  RECYCLING LOCATION
-                </TableCell>
-                <TableCell style={{ color: "#ffffff" }}>
-                  RECYCLING METHOD
-                </TableCell>
-                <TableCell style={{ color: "#ffffff" }}>WASTE TYPE</TableCell>
-                <TableCell style={{ color: "#ffffff" }}>
-                  QUANTITY (KG)
-                </TableCell>
-                {/* <TableCell>Waste Types</TableCell> */}
-                <TableCell style={{ color: "#ffffff" }}>CREATED AT</TableCell>
+      {user.isAdmin ? (
+        <AggregatedTable />
+      ) : (
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead
+                style={{ backgroundColor: theme.palette.primary.main }}
+              >
+                <TableRow>
+                  <TableCell style={{ color: "#ffffff" }}>
+                    RECYCLING LOCATION
+                  </TableCell>
+                  <TableCell style={{ color: "#ffffff" }}>
+                    RECYCLING METHOD
+                  </TableCell>
+                  <TableCell style={{ color: "#ffffff" }}>WASTE TYPE</TableCell>
+                  <TableCell style={{ color: "#ffffff" }}>
+                    QUANTITY (KG)
+                  </TableCell>
+                  {/* <TableCell>Waste Types</TableCell> */}
+                  <TableCell style={{ color: "#ffffff" }}>CREATED AT</TableCell>
 
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {recyclingHistories.data &&
-                recyclingHistories.data.map((row, index) => (
-                  <TableRow key={row._id} sx={{backgroundColor: index % 2 !== 0 && theme.palette.neutral[800] }}>
-                    {row.recyclingLocation ? (
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {recyclingHistories.data &&
+                  recyclingHistories.data.map((row, index) => (
+                    <TableRow
+                      key={row._id}
+                      sx={{
+                        backgroundColor:
+                          index % 2 !== 0 && theme.palette.neutral[800],
+                      }}
+                    >
+                      {row.recyclingLocation ? (
+                        <TableCell>
+                          {row.recyclingLocation.locationName}
+                        </TableCell>
+                      ) : (
+                        <TableCell>Undefined</TableCell>
+                      )}
+
+                      <TableCell>{row.recyclingMethod}</TableCell>
+                      <TableCell>{row.wasteType}</TableCell>
+                      <TableCell>{row.quantity.toFixed(2)}</TableCell>
                       <TableCell>
-                        {row.recyclingLocation.locationName }
+                        {new Date(row.createdAt).toLocaleString()}
                       </TableCell>
-                    ) : (
-                      <TableCell>Undefined</TableCell>
-                    )}
 
-                    <TableCell>{row.recyclingMethod}</TableCell>
-                    <TableCell>{row.wasteType}</TableCell>
-                    <TableCell>{row.quantity.toFixed(2)}</TableCell>
-                    <TableCell>
-                      {new Date(row.createdAt).toLocaleString()}
-                    </TableCell>
-
-                    <TableCell align="right">
-                    <IconButton
-                            aria-label="edit"
-                            onClick={() => handleEdit(row._id)}
-                            sx={{
-                              borderRadius: "4px",
-                              backgroundColor: "#007bff",
-                              width: "24px",
-                              height: "24px",
-                              margin: "5px",
-                              padding: "18px",
-                            }}
-                          >
-                            <Edit sx={{ color: "#ffffff" }} />
-                          </IconButton>
-                          <IconButton
-                            aria-label="delete"
-                            onClick={() => handleDelete(row._id)}
-                            sx={{
-                              borderRadius: "4px",
-                              backgroundColor: "#e00a33",
-                              width: "24px",
-                              height: "24px",
-                              margin: "5px",
-                              padding: "18px",
-                            }}
-                          >
-                            <Delete sx={{ color: "#ffffff" }} />
-                          </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-           sx={{
-            m: "1rem 0",
-            "& .Mui-selected": { backgroundColor: "rgba(101, 180, 55, 0.4) !important" },
-          }}
-          count={totalPages ?? 1}
-            page={page}
-            onChange={handlePageChange}
-            siblingCount={1}
-            showFirstButton
-            showLastButton
-          />
-        </Box>
-      </Paper> }
+                      <TableCell align="right">
+                        <IconButton
+                          aria-label="edit"
+                          onClick={() => handleEdit(row._id)}
+                          sx={{
+                            borderRadius: "4px",
+                            backgroundColor: "#007bff",
+                            width: "24px",
+                            height: "24px",
+                            margin: "5px",
+                            padding: "18px",
+                          }}
+                        >
+                          <Edit sx={{ color: "#ffffff" }} />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => handleDelete(row._id)}
+                          sx={{
+                            borderRadius: "4px",
+                            backgroundColor: "#e00a33",
+                            width: "24px",
+                            height: "24px",
+                            margin: "5px",
+                            padding: "18px",
+                          }}
+                        >
+                          <Delete sx={{ color: "#ffffff" }} />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Pagination
+              sx={{
+                m: "1rem 0",
+                "& .Mui-selected": {
+                  backgroundColor: "rgba(16, 185, 129, 0.7) !important",
+                },
+              }}
+              count={totalPages ?? 1}
+              page={page}
+              onChange={handlePageChange}
+              siblingCount={1}
+              showFirstButton
+              showLastButton
+            />
+          </Box>
+        </Paper>
+      )}
       <Dialog open={openEditDialog} onClose={handleClose}>
         <DialogTitle>
           Edit Recycling History for{" "}
@@ -563,7 +579,7 @@ const RecyclingHistory = () => {
               wasteType: recyclingHistory.wasteType,
             }}
             validationSchema={EditvalidationSchema}
-             onSubmit={onSubmitEdit}
+            onSubmit={onSubmitEdit}
           >
             {({ values, handleChange, handleSubmit, errors, touched }) => (
               <Form onSubmit={handleSubmit}>
@@ -607,6 +623,9 @@ const RecyclingHistory = () => {
                     <MenuItem value="E-waste Recycling">
                       E-waste Recycling
                     </MenuItem>
+                    <MenuItem value="E-waste Recycling">
+                    Textile Recycling
+                    </MenuItem>
                   </Select>
                   <InputLabel htmlFor="recyclingMethod">
                     Recycling Method
@@ -627,6 +646,10 @@ const RecyclingHistory = () => {
                     <MenuItem value="Metal">Metal</MenuItem>
                     <MenuItem value="Bottle">Bottle (Bottle)</MenuItem>
                     <MenuItem value="Can">Can (Can)</MenuItem>
+                    <MenuItem value="Cardboard">Cardboard</MenuItem>
+                    <MenuItem value="Aluminum">Aluminum</MenuItem>
+                    <MenuItem value="Electronics">Electronics</MenuItem>
+                    <MenuItem value="Textile">Textile</MenuItem>
                   </Select>
                   <InputLabel htmlFor="wasteType">Waste Type</InputLabel>
                 </FormControl>
@@ -647,34 +670,36 @@ const RecyclingHistory = () => {
                 />
 
                 <DialogActions>
-                    <Button
-                      onClick={handleClose}
-                      sx={{
-                        padding: "0.5rem 1rem",
-                        color: theme.palette.neutral[1000],
+                  <Button
+                    onClick={handleClose}
+                    sx={{
+                      padding: "0.5rem 1rem",
+                      color: theme.palette.neutral[1000],
+                      backgroundColor: theme.palette.primary.main,
+                      "&:hover": {
                         backgroundColor: theme.palette.primary.light,
-                        "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
-                        },
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isButtonDisabled}
-                      sx={{
-                        padding: "0.5rem 1rem",
-                        color: theme.palette.neutral[1000],
+                        color: theme.palette.neutral[10],
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isButtonDisabled}
+                    sx={{
+                      padding: "0.5rem 1rem",
+                      color: theme.palette.neutral[1000],
+                      backgroundColor: theme.palette.primary.main,
+                      "&:hover": {
                         backgroundColor: theme.palette.primary.light,
-                        "&:hover": {
-                          backgroundColor: theme.palette.primary.main,
-                        },
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  </DialogActions>
+                        color: theme.palette.neutral[10],
+                      },
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </DialogActions>
               </Form>
             )}
           </Formik>
